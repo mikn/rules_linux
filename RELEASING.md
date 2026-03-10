@@ -3,7 +3,7 @@
 ## Prerequisites (one-time)
 
 1. Fork [bazelbuild/bazel-central-registry](https://github.com/bazelbuild/bazel-central-registry) to `mikn/bazel-central-registry`
-2. Create a GitHub Classic PAT with `repo` + `workflow` scopes
+2. Create a GitHub **Classic** PAT with `repo` + `workflow` scopes (fine-grained PATs [cannot open PRs against public repos](https://github.com/github/roadmap/issues/600))
 3. Add it as `BCR_PUBLISH_TOKEN` in repo Settings → Secrets and variables → Actions
 
 ## Release process
