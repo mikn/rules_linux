@@ -1,0 +1,15 @@
+matrix:
+  platform:
+    - ubuntu_22.04
+  bazel:
+    - 8.x
+    - 9.x
+tasks:
+  build_and_test:
+    name: Build and test
+    platform: ${{ platform }}
+    bazel: ${{ bazel }}
+    build_targets:
+      - //...
+    test_targets:
+      - //...

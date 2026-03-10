@@ -1,0 +1,15 @@
+{
+  "homepage": "https://github.com/mikn/rules_linux",
+  "maintainers": [
+    {
+      "email": "mikael.knutsson@gmail.com",
+      "github": "mikn",
+      "name": "Mikael Knutsson"
+    }
+  ],
+  "repository": [
+    "github:mikn/rules_linux"
+  ],
+  "versions": [],
+  "yanked_versions": {}
+}
