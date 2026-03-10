@@ -2,36 +2,24 @@ name: Release
 
 on:
   push:
-    tags: ["v*"]
+    tags: ["v*.*.*"]
 
 permissions:
+  id-token: write
+  attestations: write
   contents: write
 
 jobs:
   release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+    uses: bazel-contrib/.github/.github/workflows/release_ruleset.yaml@v7.2.2
+    with:
+      release_files: rules_linux-*.tar.gz
+      prerelease: false
 
-      - name: Get version from tag
-        id: version
-        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-
-      - name: Verify MODULE.bazel version
-        run: |
-          module_version=$(grep -oP 'version = "\K[^"]+' MODULE.bazel)
-          if [ "$module_version" != "${{ steps.version.outputs.version }}" ]; then
-            echo "ERROR: MODULE.bazel version ($module_version) does not match tag (${{ steps.version.outputs.version }})"
-            exit 1
-          fi
-
-      - name: Create source archive
-        run: |
-          prefix="rules_linux-${{ steps.version.outputs.version }}"
-          git archive --format=tar.gz --prefix="${prefix}/" HEAD -o "${prefix}.tar.gz"
-
-      - name: Create GitHub release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: "rules_linux-${{ steps.version.outputs.version }}.tar.gz"
-          generate_release_notes: true
+  publish:
+    needs: release
+    uses: ./.github/workflows/publish.yml
+    with:
+      tag_name: ${{ github.ref_name }}
+    secrets:
+      publish_token: ${{ secrets.BCR_PUBLISH_TOKEN }}

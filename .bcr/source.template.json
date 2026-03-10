@@ -1,5 +1,5 @@
 {
-  "url": "https://github.com/mikn/rules_linux/releases/download/{TAG}/rules_linux-{VERSION}.tar.gz",
+  "url": "https://github.com/mikn/rules_linux/releases/download/{TAG}/rules_linux-{TAG}.tar.gz",
   "integrity": "",
   "strip_prefix": "rules_linux-{VERSION}"
 }
