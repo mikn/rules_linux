@@ -1,0 +1,40 @@
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//linux:defs.bzl", "STRIP_PROFILE_NONE", "initrd")
+
+# --- Test: initrd rule converts a rootfs tar to cpio.zst ---
+
+genrule(
+    name = "test_file",
+    outs = ["test.txt"],
+    cmd = "echo 'vmtest content' > $@",
+)
+
+pkg_tar(
+    name = "test_rootfs",
+    srcs = [":test_file"],
+)
+
+initrd(
+    name = "test_initrd",
+    rootfs = ":test_rootfs",
+    strip_profile = STRIP_PROFILE_NONE,
+)
+
+build_test(
+    name = "initrd_build_test",
+    targets = [":test_initrd"],
+)
+
+# --- Test: initrd with strip profile ---
+
+initrd(
+    name = "test_initrd_stripped",
+    rootfs = ":test_rootfs",
+    # Default strip_profile is STRIP_PROFILE_SERVER
+)
+
+build_test(
+    name = "initrd_strip_build_test",
+    targets = [":test_initrd_stripped"],
+)

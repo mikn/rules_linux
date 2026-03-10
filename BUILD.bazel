@@ -1,0 +1,10 @@
+load("@gazelle//:def.bzl", "gazelle")
+
+# gazelle:prefix github.com/molnett/rules_linux
+# gazelle:exclude linux/kernel
+# gazelle:exclude linux/initrd
+# gazelle:exclude linux/uki
+# gazelle:exclude linux/signing
+# gazelle:exclude linux/iso
+
+gazelle(name = "gazelle")

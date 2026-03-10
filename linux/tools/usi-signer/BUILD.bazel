@@ -1,0 +1,22 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "usi-signer_lib",
+    srcs = [
+        "main.go",
+        "pki.go",
+    ],
+    importpath = "github.com/molnett/rules_linux/linux/tools/usi-signer",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@com_github_foxboron_go_uefi//authenticode",
+        "@com_github_foxboron_go_uefi//efi/util",
+        "@com_github_foxboron_go_uefi//pkcs7",
+    ],
+)
+
+go_binary(
+    name = "usi-signer",
+    embed = [":usi-signer_lib"],
+    visibility = ["//visibility:public"],
+)
