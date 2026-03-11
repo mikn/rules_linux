@@ -1,0 +1,83 @@
+#!/bin/bash
+# Bootstrap VM init — PID 1 for the kernel_build macOS VM path.
+#
+# Responsibilities:
+#   1. Mount essential pseudo-filesystems.
+#   2. Load kernel modules for virtio-serial and 9P (Debian stock kernels
+#      build these as modules, not built-in).
+#   3. Create virtio-serial port device nodes (no udev).
+#   4. Start the vmtest agent so the host vmbuilder can issue build commands.
+#   5. Loop forever reaping orphaned children — PID 1 must not exit.
+#
+# The host vmbuilder shuts the VM down via QMP once the build is complete,
+# so there is no graceful shutdown needed from this script.
+
+set -e
+
+# Provide a sane environment for agent subprocesses (make, gcc, etc.).
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+export HOME=/root
+export TERM=linux
+
+mount -t proc proc /proc
+mount -t sysfs sysfs /sys
+mount -t devtmpfs devtmpfs /dev
+mkdir -p /dev/pts
+mount -t devpts devpts /dev/pts
+
+# rules_distroless extracts debs without running postinst scripts, so
+# Debian alternatives, depmod, and other postinst setup is missing.
+[ -e /usr/bin/awk ] || ln -s gawk /usr/bin/awk
+[ -e /bin/sh ] || ln -s bash /bin/sh
+[ -e /usr/bin/cc ] || ln -s gcc /usr/bin/cc
+depmod "$(uname -r)" 2>/dev/null || true
+
+# Load kernel modules needed for VM communication.
+# Debian stock kernels build these as modules, not built-in.
+modprobe virtio_pci 2>/dev/null || true
+modprobe virtio_console 2>/dev/null || true
+modprobe 9p 2>/dev/null || true
+modprobe 9pnet 2>/dev/null || true
+modprobe 9pnet_virtio 2>/dev/null || true
+
+# Wait for virtio-serial ports to appear (up to 5s).
+# sysfs entries may not be populated immediately after modprobe returns.
+for i in $(seq 1 50); do
+    [ -d /sys/class/virtio-ports ] && ls /sys/class/virtio-ports/vport* >/dev/null 2>&1 && break
+    sleep 0.1
+done
+
+# Expose virtio-serial ports as /dev/virtio-ports/<name> without udev.
+# The agent expects /dev/virtio-ports/org.vmtest.agent.
+mkdir -p /dev/virtio-ports
+for port_dir in /sys/class/virtio-ports/vport*/; do
+    [ -d "$port_dir" ] || continue
+    name=$(cat "$port_dir/name" 2>/dev/null) || continue
+    [ -n "$name" ] || continue
+    dev=$(cat "$port_dir/dev" 2>/dev/null) || continue
+    major="${dev%%:*}"
+    minor="${dev##*:}"
+    mknod "/dev/virtio-ports/$name" c "$major" "$minor" 2>/dev/null || true
+done
+
+# Diagnostics — visible on serial console via vmbuilder's OnLine callback.
+echo "init: kernel=$(uname -r) modules=$(ls /lib/modules/ 2>/dev/null || echo NONE)"
+echo "init: virtio-ports=$(ls /sys/class/virtio-ports/ 2>/dev/null || echo NONE)"
+echo "init: dev-virtio-ports=$(ls /dev/virtio-ports/ 2>/dev/null || echo NONE)"
+
+/usr/lib/vmtest/agent &
+AGENT_PID=$!
+
+# Give agent a moment to start, then verify it's alive.
+# Log to stdout so the vmbuilder captures the failure via serial console.
+sleep 0.5
+if ! kill -0 "$AGENT_PID" 2>/dev/null; then
+    echo "FATAL: vmtest agent (PID $AGENT_PID) exited immediately" >&2
+    echo "FATAL: vmtest agent (PID $AGENT_PID) exited immediately"
+fi
+
+# PID 1 must not exit — the kernel panics if init returns.
+# Reap orphaned children to prevent zombie accumulation during kernel builds.
+while true; do
+    wait -n 2>/dev/null || sleep 1
+done

@@ -1,10 +1,11 @@
 load("@gazelle//:def.bzl", "gazelle")
 
-# gazelle:prefix github.com/molnett/rules_linux
+# gazelle:prefix github.com/mikn/rules_linux
 # gazelle:exclude linux/kernel
 # gazelle:exclude linux/initrd
 # gazelle:exclude linux/uki
 # gazelle:exclude linux/signing
 # gazelle:exclude linux/iso
+# gazelle:resolve go github.com/mikn/rules_qemu/vm @rules_qemu//vm
 
 gazelle(name = "gazelle")

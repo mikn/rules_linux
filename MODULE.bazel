@@ -13,12 +13,23 @@ bazel_dep(name = "gazelle", version = "0.47.0")
 bazel_dep(name = "rules_distroless", version = "0.6.2")
 bazel_dep(name = "ape", version = "1.1.0")
 
+# QEMU toolchain for macOS kernel build via VM harness
+bazel_dep(name = "rules_qemu", version = "0.1.0")
+
 # Kernel build toolchains (CC toolchain provided by consumer's registered toolchain)
 bazel_dep(name = "rules_flex", version = "0.4")
 bazel_dep(name = "rules_bison", version = "0.4")
 bazel_dep(name = "rules_python", version = "1.9.0")
 bazel_dep(name = "rules_perl", version = "0.6.7")
 bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+
+apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
+apt.install(
+    name = "bootstrap_debian",
+    lock = "//linux/bootstrap:bootstrap.lock.json",
+    manifest = "//linux/bootstrap:bootstrap.yaml",
+)
+use_repo(apt, "bootstrap_debian")
 
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")

@@ -1,0 +1,82 @@
+"""Bootstrap kernel and initrd for the macOS kernel_build VM path.
+
+These targets provide the QEMU guest environment that compiles kernels on
+macOS via hardware-accelerated virtualisation (HVF).
+
+To regenerate the package lock file after editing bootstrap.yaml:
+    bazel run @bootstrap_debian//:lock
+"""
+
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//linux/initrd:initrd.bzl", "initrd")
+load("//linux/initrd:strip_profiles.bzl", "STRIP_PROFILE_NONE")
+load("//linux/kernel:kernel_extract.bzl", "kernel_extract")
+
+# ---------------------------------------------------------------------------
+# Bootstrap kernel
+# ---------------------------------------------------------------------------
+
+# Extract vmlinuz from the merged Debian rootfs.
+# kernel_extract scans for ./boot/vmlinuz-* inside the tar, which is present
+# in the flattened apt rootfs after linux-image-amd64 (and its concrete
+# linux-image-<ver>-amd64 dependency) have been resolved.
+kernel_extract(
+    name = "kernel_info",
+    package = "@bootstrap_debian//:flat",
+    arch = "x86_64",
+    visibility = ["//visibility:private"],
+)
+
+# Public alias consumed by _kernel_build_vm via //linux/bootstrap:kernel.
+# kernel_extract's DefaultInfo contains the vmlinuz file as its sole output,
+# so depending on this label gives the single vmlinuz file.
+alias(
+    name = "kernel",
+    actual = ":kernel_info",
+    visibility = ["//visibility:public"],
+)
+
+# ---------------------------------------------------------------------------
+# Bootstrap initrd
+# ---------------------------------------------------------------------------
+
+# Layer 1: full Debian rootfs with compiler toolchain.
+# @bootstrap_debian//:flat is the merged tar of all resolved packages.
+
+# Layer 2: vmtest agent binary at /usr/lib/vmtest/agent.
+# We use agent_tar (which includes systemd service files) because agent_bin_tar
+# is private to rules_qemu. The extra systemd unit files are harmless without
+# systemd — they're inert text files that the minimal init simply ignores.
+
+# Layer 3: custom init script at /init.
+# package_dir="/" means srcs are placed directly under /; a source file
+# named "init" therefore lands at /init in the tar.
+# remap_paths is unreliable (see project memory), so package_dir is used.
+pkg_tar(
+    name = "init_tar",
+    srcs = ["init"],
+    mode = "0755",
+    package_dir = "/",
+    visibility = ["//visibility:private"],
+)
+
+# Compose all layers into a single rootfs tar.
+pkg_tar(
+    name = "bootstrap_rootfs",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@bootstrap_debian//:flat",
+        "@rules_qemu//agent:agent_tar",
+        ":init_tar",
+    ],
+)
+
+# Build the cpio.zst initrd.
+# STRIP_PROFILE_NONE: the bootstrap VM needs the full compiler toolchain
+# (gcc, make, flex, bison, perl, python, etc.) — nothing should be stripped.
+initrd(
+    name = "initrd",
+    rootfs = ":bootstrap_rootfs",
+    strip_profile = STRIP_PROFILE_NONE,
+    visibility = ["//visibility:public"],
+)

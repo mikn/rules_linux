@@ -5,6 +5,7 @@ go 1.26.0
 require (
 	github.com/diskfs/go-diskfs v1.7.0
 	github.com/foxboron/go-uefi v0.0.0-20251010190908-d29549a44f29
+	github.com/mikn/rules_qemu v0.0.0-20260311181230-897cf5ac70be
 )
 
 require (
