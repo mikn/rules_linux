@@ -530,7 +530,7 @@ _kernel_build_vm = rule(
         "ccache": attr.label(allow_single_file = True),
         "ccache_dir": attr.string(default = "/tmp/bazel-ccache"),
         "memory": attr.string(
-            default = "4G",
+            default = "8G",
             doc = "VM memory for the builder (e.g. 4G, 8G). macOS path only.",
         ),
         # Private tool attrs.

@@ -25,11 +25,16 @@ bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
 
 apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
 apt.install(
-    name = "bootstrap_debian",
-    lock = "//linux/bootstrap:bootstrap.lock.json",
-    manifest = "//linux/bootstrap:bootstrap.yaml",
+    name = "bootstrap_debian_amd64",
+    lock = "//linux/bootstrap:bootstrap_amd64.lock.json",
+    manifest = "//linux/bootstrap:bootstrap_amd64.yaml",
 )
-use_repo(apt, "bootstrap_debian")
+apt.install(
+    name = "bootstrap_debian_arm64",
+    lock = "//linux/bootstrap:bootstrap_arm64.lock.json",
+    manifest = "//linux/bootstrap:bootstrap_arm64.yaml",
+)
+use_repo(apt, "bootstrap_debian_amd64", "bootstrap_debian_arm64")
 
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")

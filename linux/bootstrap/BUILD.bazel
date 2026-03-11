@@ -1,10 +1,14 @@
-"""Bootstrap kernel and initrd for the macOS kernel_build VM path.
+"""Bootstrap kernel and initrd for the kernel_build VM path.
 
-These targets provide the QEMU guest environment that compiles kernels on
-macOS via hardware-accelerated virtualisation (HVF).
+Architecture-specific targets are suffixed with _amd64 or _arm64.
+The public :kernel and :initrd aliases select the correct variant based on
+the execution platform CPU (cfg = "exec" in kernel_build.bzl), so Apple
+Silicon Macs get HVF-accelerated ARM64 VMs while x86_64 hosts use their
+native architecture.
 
-To regenerate the package lock file after editing bootstrap.yaml:
-    bazel run @bootstrap_debian//:lock
+To regenerate lock files after editing manifests:
+    bazel run @bootstrap_debian_amd64//:lock
+    bazel run @bootstrap_debian_arm64//:lock
 """
 
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
@@ -13,45 +17,9 @@ load("//linux/initrd:strip_profiles.bzl", "STRIP_PROFILE_NONE")
 load("//linux/kernel:kernel_extract.bzl", "kernel_extract")
 
 # ---------------------------------------------------------------------------
-# Bootstrap kernel
+# Shared: init script (architecture-independent)
 # ---------------------------------------------------------------------------
 
-# Extract vmlinuz from the merged Debian rootfs.
-# kernel_extract scans for ./boot/vmlinuz-* inside the tar, which is present
-# in the flattened apt rootfs after linux-image-amd64 (and its concrete
-# linux-image-<ver>-amd64 dependency) have been resolved.
-kernel_extract(
-    name = "kernel_info",
-    package = "@bootstrap_debian//:flat",
-    arch = "x86_64",
-    visibility = ["//visibility:private"],
-)
-
-# Public alias consumed by _kernel_build_vm via //linux/bootstrap:kernel.
-# kernel_extract's DefaultInfo contains the vmlinuz file as its sole output,
-# so depending on this label gives the single vmlinuz file.
-alias(
-    name = "kernel",
-    actual = ":kernel_info",
-    visibility = ["//visibility:public"],
-)
-
-# ---------------------------------------------------------------------------
-# Bootstrap initrd
-# ---------------------------------------------------------------------------
-
-# Layer 1: full Debian rootfs with compiler toolchain.
-# @bootstrap_debian//:flat is the merged tar of all resolved packages.
-
-# Layer 2: vmtest agent binary at /usr/lib/vmtest/agent.
-# We use agent_tar (which includes systemd service files) because agent_bin_tar
-# is private to rules_qemu. The extra systemd unit files are harmless without
-# systemd — they're inert text files that the minimal init simply ignores.
-
-# Layer 3: custom init script at /init.
-# package_dir="/" means srcs are placed directly under /; a source file
-# named "init" therefore lands at /init in the tar.
-# remap_paths is unreliable (see project memory), so package_dir is used.
 pkg_tar(
     name = "init_tar",
     srcs = ["init"],
@@ -60,23 +28,80 @@ pkg_tar(
     visibility = ["//visibility:private"],
 )
 
-# Compose all layers into a single rootfs tar.
+# ---------------------------------------------------------------------------
+# x86_64 (amd64) bootstrap
+# ---------------------------------------------------------------------------
+
+kernel_extract(
+    name = "kernel_amd64",
+    package = "@bootstrap_debian_amd64//:flat",
+    arch = "x86_64",
+    visibility = ["//visibility:private"],
+)
+
 pkg_tar(
-    name = "bootstrap_rootfs",
+    name = "bootstrap_rootfs_amd64",
     visibility = ["//visibility:private"],
     deps = [
-        "@bootstrap_debian//:flat",
+        "@bootstrap_debian_amd64//:flat",
         "@rules_qemu//agent:agent_tar",
         ":init_tar",
     ],
 )
 
-# Build the cpio.zst initrd.
-# STRIP_PROFILE_NONE: the bootstrap VM needs the full compiler toolchain
-# (gcc, make, flex, bison, perl, python, etc.) — nothing should be stripped.
 initrd(
-    name = "initrd",
-    rootfs = ":bootstrap_rootfs",
+    name = "initrd_amd64",
+    rootfs = ":bootstrap_rootfs_amd64",
     strip_profile = STRIP_PROFILE_NONE,
+    visibility = ["//visibility:private"],
+)
+
+# ---------------------------------------------------------------------------
+# ARM64 (aarch64) bootstrap
+# ---------------------------------------------------------------------------
+
+kernel_extract(
+    name = "kernel_arm64",
+    package = "@bootstrap_debian_arm64//:flat",
+    arch = "arm64",
+    visibility = ["//visibility:private"],
+)
+
+pkg_tar(
+    name = "bootstrap_rootfs_arm64",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@bootstrap_debian_arm64//:flat",
+        "@rules_qemu//agent:agent_tar",
+        ":init_tar",
+    ],
+)
+
+initrd(
+    name = "initrd_arm64",
+    rootfs = ":bootstrap_rootfs_arm64",
+    strip_profile = STRIP_PROFILE_NONE,
+    visibility = ["//visibility:private"],
+)
+
+# ---------------------------------------------------------------------------
+# Public aliases: select by execution platform CPU
+# ---------------------------------------------------------------------------
+
+alias(
+    name = "kernel",
+    actual = select({
+        "@platforms//cpu:aarch64": ":kernel_arm64",
+        "//conditions:default": ":kernel_amd64",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+alias(
+    name = "initrd",
+    actual = select({
+        "@platforms//cpu:aarch64": ":initrd_arm64",
+        "//conditions:default": ":initrd_amd64",
+    }),
     visibility = ["//visibility:public"],
 )

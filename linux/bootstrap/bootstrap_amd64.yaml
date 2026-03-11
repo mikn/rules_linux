@@ -1,0 +1,53 @@
+# Bootstrap rootfs for the kernel_build VM path (x86_64 / amd64).
+#
+# Provides the compiler toolchain (gcc, make, flex, bison, etc.) needed to
+# build a Linux kernel inside a QEMU guest, plus the bootstrap kernel image
+# used to boot that guest.
+#
+# No systemd — the VM uses a minimal init script that starts the vmtest agent
+# directly, which handles all RPC communication with the host vmbuilder.
+#
+# To regenerate the lock file after changing packages:
+#   bazel run @bootstrap_debian_amd64//:lock
+version: 1
+
+sources:
+  - channel: bookworm main
+    url: https://snapshot.debian.org/archive/debian/20250724T082627Z
+
+archs:
+  - amd64
+
+packages:
+  # Bootstrap kernel (to boot the builder VM)
+  - linux-image-amd64
+
+  # Kernel build toolchain
+  - build-essential
+  - flex
+  - bison
+  - bc
+  - libelf-dev
+  - libssl-dev
+  - cpio
+  - kmod
+  - xz-utils
+  - rsync
+
+  # POSIX userspace (no systemd)
+  - bash
+  - coreutils
+  - util-linux
+  - mount
+  - findutils
+  - grep
+  - sed
+  - gawk
+  - diffutils
+  - patch
+
+  # Python 3 (required by kernel build scripts under scripts/)
+  - python3
+
+  # Perl (used by kernel build scripts under scripts/)
+  - perl-base

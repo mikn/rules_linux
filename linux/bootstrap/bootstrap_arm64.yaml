@@ -1,14 +1,10 @@
-# Bootstrap rootfs for the macOS kernel_build VM path.
+# Bootstrap rootfs for the macOS (Apple Silicon) kernel_build VM path.
 #
-# Provides the compiler toolchain (gcc, make, flex, bison, etc.) needed to
-# build a Linux kernel inside a QEMU guest, plus the bootstrap kernel image
-# used to boot that guest.
-#
-# No systemd — the VM uses a minimal init script that starts the vmtest agent
-# directly, which handles all RPC communication with the host vmbuilder.
+# ARM64 variant of the compiler toolchain for building Linux kernels inside
+# a QEMU guest with HVF acceleration on Apple Silicon Macs.
 #
 # To regenerate the lock file after changing packages:
-#   bazel run @bootstrap_debian//:lock
+#   bazel run @bootstrap_debian_arm64//:lock
 version: 1
 
 sources:
@@ -16,11 +12,11 @@ sources:
     url: https://snapshot.debian.org/archive/debian/20250724T082627Z
 
 archs:
-  - amd64
+  - arm64
 
 packages:
   # Bootstrap kernel (to boot the builder VM)
-  - linux-image-amd64
+  - linux-image-arm64
 
   # Kernel build toolchain
   - build-essential
