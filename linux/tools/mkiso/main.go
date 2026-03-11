@@ -18,26 +18,43 @@ import (
 var (
 	usiPath    = flag.String("usi", "", "Path to USI/UKI file")
 	outputPath = flag.String("output", "", "Path for output ISO file")
+	archFlag   = flag.String("arch", "x86_64", "Target architecture: x86_64 or arm64")
 )
+
+// efiBootFilename returns the UEFI default boot filename for the given architecture.
+// x86_64 → BOOTX64.EFI, arm64/aarch64 → BOOTAA64.EFI.
+func efiBootFilename(arch string) (string, error) {
+	switch arch {
+	case "x86_64", "amd64":
+		return "BOOTX64.EFI", nil
+	case "arm64", "aarch64":
+		return "BOOTAA64.EFI", nil
+	default:
+		return "", fmt.Errorf("unsupported architecture %q: expected x86_64 or arm64", arch)
+	}
+}
 
 func main() {
 	flag.Parse()
 
 	if *usiPath == "" || *outputPath == "" {
-		fmt.Fprintf(os.Stderr, "Usage: %s -usi <usi-file> -output <iso-file> [data-files...]\n", os.Args[0])
+		fmt.Fprintf(os.Stderr, "Usage: %s -usi <usi-file> -output <iso-file> [-arch x86_64|arm64] [data-files...]\n", os.Args[0])
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
 
-	dataFiles := flag.Args()
-	if err := createUEFIBootableISO(*usiPath, dataFiles, *outputPath); err != nil {
-		log.Fatalf("Failed to create ISO: %v", err)
+	bootFilename, err := efiBootFilename(*archFlag)
+	if err != nil {
+		log.Fatalf("Invalid -arch flag: %v", err)
 	}
 
-	fmt.Printf("Successfully created bootable ISO: %s\n", *outputPath)
+	dataFiles := flag.Args()
+	if err := createUEFIBootableISO(*usiPath, dataFiles, *outputPath, bootFilename); err != nil {
+		log.Fatalf("Failed to create ISO: %v", err)
+	}
 }
 
-func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string) error {
+func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string, bootFilename string) error {
 	// Step 1: Do a dry run to calculate exact content size
 	fmt.Printf("Calculating required space...\n")
 	contentSize, err := calculateContentSize(usiPath, dataFiles)
@@ -62,7 +79,7 @@ func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string
 	espImg := filepath.Join(os.TempDir(), "esp.img")
 	defer os.Remove(espImg)
 
-	_, err = createESP(usiPath, espImg)
+	_, err = createESP(usiPath, espImg, bootFilename)
 	if err != nil {
 		return fmt.Errorf("failed to create ESP: %w", err)
 	}
@@ -77,7 +94,7 @@ func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string
 	return nil
 }
 
-func createESP(usiPath, espPath string) (int64, error) {
+func createESP(usiPath, espPath string, bootFilename string) (int64, error) {
 	// Get USI file size to calculate ESP size
 	usiInfo, err := os.Stat(usiPath)
 	if err != nil {
@@ -115,16 +132,18 @@ func createESP(usiPath, espPath string) (int64, error) {
 		return 0, fmt.Errorf("failed to create /EFI/BOOT directory: %w", err)
 	}
 
-	// Copy USI to ESP as BOOTX64.EFI
+	// Copy USI to ESP as the architecture-appropriate EFI boot filename.
+	// x86_64 → /EFI/BOOT/BOOTX64.EFI, arm64 → /EFI/BOOT/BOOTAA64.EFI
 	usiFile, err := os.Open(usiPath)
 	if err != nil {
 		return 0, fmt.Errorf("failed to open USI file: %w", err)
 	}
 	defer usiFile.Close()
 
-	bootFile, err := espFS.OpenFile("/EFI/BOOT/BOOTX64.EFI", os.O_CREATE|os.O_RDWR)
+	efiBootPath := "/EFI/BOOT/" + bootFilename
+	bootFile, err := espFS.OpenFile(efiBootPath, os.O_CREATE|os.O_RDWR)
 	if err != nil {
-		return 0, fmt.Errorf("failed to create BOOTX64.EFI: %w", err)
+		return 0, fmt.Errorf("failed to create %s: %w", efiBootPath, err)
 	}
 	defer bootFile.Close()
 

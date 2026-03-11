@@ -8,7 +8,7 @@ LinuxKernelInfo = provider(
         "system_map": "File: System.map (optional)",
         "headers": "File: tar of kernel headers (optional)",
         "version": "string: kernel version",
-        "arch": "string: x86_64 or aarch64",
+        "arch": "string: x86_64 or arm64",
     },
 )
 

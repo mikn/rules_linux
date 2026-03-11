@@ -35,6 +35,10 @@ def _kernel_build_impl(ctx):
     source_tarball = ctx.file.source_tarball
     arch = ctx.attr.arch
 
+    # Normalize legacy amd64 alias to x86_64, matching kernel_extract behaviour.
+    if arch == "amd64":
+        arch = "x86_64"
+
     if arch == "x86_64":
         karch = "x86"
         image_target = "bzImage"
@@ -345,8 +349,8 @@ kernel_build = rule(
         ),
         "arch": attr.string(
             default = "x86_64",
-            values = ["x86_64", "arm64"],
-            doc = "Target architecture",
+            values = ["x86_64", "amd64", "arm64"],
+            doc = "Target architecture. amd64 is a legacy alias for x86_64.",
         ),
         "make_jobs": attr.int(
             default = 0,

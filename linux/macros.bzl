@@ -8,7 +8,7 @@ load("//linux/iso:iso.bzl", "iso_image")
 
 def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
               kernel_package = None, systemd_boot_package = None,
-              arch = "amd64", strip_profile = None, extra_excludes = [],
+              arch = "x86_64", strip_profile = None, extra_excludes = [],
               extra_includes = [], **kwargs):
     """Build a USI (Unified System Image) - UKI with complete OS rootfs as initrd.
 
@@ -18,7 +18,7 @@ def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
         kernel_cmdline: Kernel command line parameters
         kernel_package: Kernel debian package data archive
         systemd_boot_package: systemd-boot package data archive
-        arch: Target architecture
+        arch: Target architecture (x86_64 or arm64). amd64 accepted as legacy alias for x86_64.
         strip_profile: Strip profile for initrd (default: STRIP_PROFILE_SERVER)
         extra_excludes: Additional --exclude patterns for initrd
         extra_includes: Patterns to remove from exclusions
@@ -29,12 +29,13 @@ def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
     if systemd_boot_package == None:
         fail("systemd_boot_package is required")
 
-    if arch == "amd64":
+    # Normalize arch: accept legacy amd64 as alias for x86_64
+    if arch in ("x86_64", "amd64"):
         stub_pattern = "./usr/lib/systemd/boot/efi/linuxx64.efi.stub"
     elif arch == "arm64":
         stub_pattern = "./usr/lib/systemd/boot/efi/linuxaa64.efi.stub"
     else:
-        fail("Unsupported architecture: {}".format(arch))
+        fail("Unsupported architecture: {}. Use x86_64 or arm64.".format(arch))
 
     # Extract kernel
     native.genrule(
@@ -43,7 +44,7 @@ def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
         outs = [name + ".vmlinuz"],
         cmd = """
             set -e
-            tar -xzf $(SRCS) --wildcards './boot/vmlinuz-*' -O > $@ 2>/dev/null || {
+            tar -xf $(SRCS) --wildcards './boot/vmlinuz-*' -O > $@ 2>/dev/null || {
                 echo "ERROR: Kernel not found in package" >&2
                 exit 1
             }
@@ -58,7 +59,7 @@ def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
         outs = [name + ".stub"],
         cmd = """
             set -e
-            tar -xzf $(SRCS) --wildcards '%s' -O > $@ 2>/dev/null || {
+            tar -xf $(SRCS) --wildcards '%s' -O > $@ 2>/dev/null || {
                 echo "ERROR: Stub not found in package" >&2
                 exit 1
             }
@@ -160,7 +161,7 @@ def signed_usi(name, usi, cert, signer, sops_env_yaml = None, additional_certs =
         **kwargs
     )
 
-def iso_multiarch(name, usi_base, mkiso_tool, data_files = [], **kwargs):
+def iso_multiarch(name, usi_base, mkiso_tool, data_files = [], archs = ["x86_64"], **kwargs):
     """Build ISO images for multiple architectures.
 
     Args:
@@ -168,12 +169,15 @@ def iso_multiarch(name, usi_base, mkiso_tool, data_files = [], **kwargs):
         usi_base: Base name for USI targets
         mkiso_tool: mkiso binary label
         data_files: Files to include under /data/
+        archs: List of architectures to build ISOs for (default: ["x86_64"])
         **kwargs: Additional arguments
     """
-    iso_image(
-        name = name + "_amd64",
-        usi = ":" + usi_base + "_amd64",
-        mkiso_tool = mkiso_tool,
-        data_files = data_files,
-        **kwargs
-    )
+    for arch in archs:
+        iso_image(
+            name = name + "_" + arch,
+            usi = ":" + usi_base + "_" + arch,
+            mkiso_tool = mkiso_tool,
+            arch = arch,
+            data_files = data_files,
+            **kwargs
+        )

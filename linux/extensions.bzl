@@ -70,16 +70,64 @@ _CCACHE_VERSIONS = {
             "sha256": "c405e18c3ce2d27439078941cd0d41552672ad5629400218223756868a5eb978",
             "strip_prefix": "ccache-4.13-linux-x86_64-glibc",
         },
+        "linux-aarch64": {
+            "url": "https://github.com/ccache/ccache/releases/download/v4.13/ccache-4.13-linux-aarch64-glibc.tar.xz",
+            "sha256": "c95059893afcdbb9657294c5c1dc794a149137e54e51ccdf623f1333635aed06",
+            "strip_prefix": "ccache-4.13-linux-aarch64-glibc",
+        },
+        "darwin": {
+            # Universal binary covering both x86_64 and arm64 (Apple Silicon).
+            "url": "https://github.com/ccache/ccache/releases/download/v4.13/ccache-4.13-darwin.tar.gz",
+            "sha256": "5e1b2835dc3629e6e85133f18e90b00e6fb0c7ecc3cfb8a46de3e20cbc4297d1",
+            "strip_prefix": "ccache-4.13-darwin",
+        },
     },
 }
+
+def _detect_host_platform(ctx):
+    """Detect the host platform from repository_ctx.os.
+
+    # Requires repository_ctx (has .os attribute), not module_ctx.
+
+    Returns a platform key matching _CCACHE_VERSIONS entries:
+      "linux-x86_64", "linux-aarch64", or "darwin".
+    Returns None if the host is not recognised.
+    """
+    os_name = ctx.os.name.lower()
+    os_arch = ctx.os.arch.lower()
+
+    if os_name == "linux":
+        if os_arch in ("x86_64", "amd64"):
+            return "linux-x86_64"
+        if os_arch in ("aarch64", "arm64"):
+            return "linux-aarch64"
+    elif os_name.startswith("mac") or os_name == "darwin":
+        # ccache ships a universal binary for Darwin — covers both Intel and Apple Silicon.
+        return "darwin"
+
+    return None
 
 def _ccache_repo_impl(ctx):
     version = ctx.attr.version
     platform = ctx.attr.platform
 
+    # Auto-detect host platform when platform == "auto".
+    if platform == "auto":
+        platform = _detect_host_platform(ctx)
+        if not platform:
+            fail(
+                "ccache: could not auto-detect host platform " +
+                "(os={}, arch={}). ".format(ctx.os.name, ctx.os.arch) +
+                "Set platform explicitly to one of: linux-x86_64, linux-aarch64, darwin.",
+            )
+
     info = _CCACHE_VERSIONS.get(version, {}).get(platform)
     if not info:
-        fail("No ccache binary for version={}, platform={}".format(version, platform))
+        fail("No ccache binary for version={}, platform={}. Available platforms for this version: {}".format(
+            version,
+            platform,
+            ", ".join(_CCACHE_VERSIONS.get(version, {}).keys()),
+        ))
 
     ctx.download_and_extract(
         url = info["url"],
@@ -111,13 +159,24 @@ _ccache_tag = tag_class(
     attrs = {
         "name": attr.string(default = "ccache"),
         "version": attr.string(default = "4.13"),
-        "platform": attr.string(default = "linux-x86_64"),
+        "platform": attr.string(
+            default = "auto",
+            doc = """Host platform for the ccache binary.
+
+Supported values:
+  "auto"          — detect from repository_ctx.os at fetch time (default)
+  "linux-x86_64"  — Linux on x86_64 (glibc)
+  "linux-aarch64" — Linux on ARM64 (glibc)
+  "darwin"        — macOS universal binary (Intel + Apple Silicon)
+""",
+        ),
     },
 )
 
 ccache = module_extension(
     implementation = _ccache_impl,
     tag_classes = {"download": _ccache_tag},
+    os_dependent = True,
 )
 
 # === Test artifacts (generic file downloads) ===

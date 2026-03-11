@@ -7,12 +7,16 @@ def _kernel_extract_impl(ctx):
     data_tar = ctx.file.package
 
     arch = ctx.attr.arch
-    if arch == "amd64":
+
+    # Normalize arch: accept both x86_64 and legacy amd64. arm64 is canonical.
+    if arch in ("x86_64", "amd64"):
+        canonical_arch = "x86_64"
         kernel_pattern = "./boot/vmlinuz-*"
     elif arch == "arm64":
+        canonical_arch = "arm64"
         kernel_pattern = "./boot/vmlinuz-*"
     else:
-        fail("Unsupported architecture: {}".format(arch))
+        fail("Unsupported architecture: {}. Use x86_64 or arm64.".format(arch))
 
     vmlinuz = ctx.actions.declare_file(ctx.label.name + ".vmlinuz")
 
@@ -73,7 +77,7 @@ def _kernel_extract_impl(ctx):
             system_map = None,
             headers = None,
             version = ctx.attr.version,
-            arch = arch,
+            arch = canonical_arch,
         ),
     ]
 
@@ -94,9 +98,9 @@ kernel_extract = rule(
             doc = "Kernel version string",
         ),
         "arch": attr.string(
-            default = "amd64",
-            values = ["amd64", "arm64"],
-            doc = "Target architecture",
+            default = "x86_64",
+            values = ["x86_64", "amd64", "arm64"],
+            doc = "Target architecture. Use x86_64 or arm64. amd64 is accepted as a legacy alias for x86_64.",
         ),
     },
     doc = "Extract a Linux kernel (and optionally modules) from Debian package data archives.",

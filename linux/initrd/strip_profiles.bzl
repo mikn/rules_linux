@@ -80,6 +80,7 @@ _STRIP_MISC = [
 # Desktop/consumer hardware drivers
 _STRIP_DESKTOP_DRIVERS = [
     "--exclude=./lib/modules/*/kernel/arch/x86/kvm/*",
+    "--exclude=./lib/modules/*/kernel/arch/arm64/kvm/*",
     "--exclude=./lib/modules/*/kernel/sound/*",
     "--exclude=./lib/modules/*/kernel/drivers/gpu/*",
     "--exclude=./lib/modules/*/kernel/drivers/media/*",
@@ -301,7 +302,8 @@ STRIP_PROFILE_SERVER = (
 )
 
 STRIP_PROFILE_MINIMAL = STRIP_PROFILE_SERVER + [
-    "--exclude=./usr/lib/x86_64-linux-gnu/gconv/*",
-    "--exclude=./usr/lib/x86_64-linux-gnu/libicudata.so*",
+    # Use wildcard to match any multiarch tuple (x86_64-linux-gnu, aarch64-linux-gnu, etc.)
+    "--exclude=./usr/lib/*/gconv/*",
+    "--exclude=./usr/lib/*/libicudata.so*",
     "--exclude=./usr/lib/klibc/*",
 ]
