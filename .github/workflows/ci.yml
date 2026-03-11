@@ -11,6 +11,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Checkout rules_qemu
+        uses: actions/checkout@v4
+        with:
+          repository: mikn/rules_qemu
+          path: .rules_qemu
+
       - name: Mount Bazel cache
         uses: actions/cache@v4
         with:
@@ -19,7 +25,7 @@ jobs:
           restore-keys: bazel-${{ runner.os }}-
 
       - name: Build
-        run: bazel build //...
+        run: bazel build //... --override_module=rules_qemu=${{ github.workspace }}/.rules_qemu
 
       - name: Test
-        run: bazel test //...
+        run: bazel test //... --override_module=rules_qemu=${{ github.workspace }}/.rules_qemu
