@@ -12,8 +12,8 @@
 version: 1
 
 sources:
-  - channel: bookworm main
-    url: https://snapshot.debian.org/archive/debian/20250724T082627Z
+  - channel: trixie main
+    url: https://snapshot.debian.org/archive/debian/20260311T203443Z
 
 archs:
   - amd64
