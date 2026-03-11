@@ -29,7 +29,7 @@ mount -t devpts devpts /dev/pts
 # Debian alternatives, depmod, and other postinst setup is missing.
 [ -e /usr/bin/awk ] || ln -s gawk /usr/bin/awk
 [ -e /bin/sh ] || ln -s bash /bin/sh
-[ -e /usr/bin/cc ] || ln -s gcc /usr/bin/cc
+[ -e /usr/bin/cc ] || ln -s clang /usr/bin/cc
 depmod "$(uname -r)" 2>/dev/null || true
 
 # Load kernel modules needed for VM communication.

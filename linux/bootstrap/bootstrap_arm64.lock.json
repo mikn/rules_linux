@@ -873,9 +873,9 @@
 			"arch": "arm64",
 			"dependencies": [
 				{
-					"key": "dpkg-dev_1.22.21_arm64",
-					"name": "dpkg-dev",
-					"version": "1.22.21"
+					"key": "clang-19_1-19.1.7-3-p-b1_arm64",
+					"name": "clang-19",
+					"version": "1:19.1.7-3+b1"
 				},
 				{
 					"key": "binutils_2.44-3_arm64",
@@ -953,49 +953,19 @@
 					"version": "2.44-3"
 				},
 				{
-					"key": "make-guile_4.4.1-2_arm64",
-					"name": "make-guile",
-					"version": "4.4.1-2"
+					"key": "libc6-dev_2.41-12-p-deb13u1_arm64",
+					"name": "libc6-dev",
+					"version": "2.41-12+deb13u1"
 				},
 				{
-					"key": "guile-3.0-libs_3.0.10-p-really3.0.10-4_arm64",
-					"name": "guile-3.0-libs",
-					"version": "3.0.10+really3.0.10-4"
+					"key": "rpcsvc-proto_1.4.3-1-p-b1_arm64",
+					"name": "rpcsvc-proto",
+					"version": "1.4.3-1+b1"
 				},
 				{
-					"key": "libunistring5_1.3-2_arm64",
-					"name": "libunistring5",
-					"version": "1.3-2"
-				},
-				{
-					"key": "libreadline8t64_8.2-6_arm64",
-					"name": "libreadline8t64",
-					"version": "8.2-6"
-				},
-				{
-					"key": "libtinfo6_6.5-p-20250216-2_arm64",
-					"name": "libtinfo6",
-					"version": "6.5+20250216-2"
-				},
-				{
-					"key": "readline-common_8.2-6_arm64",
-					"name": "readline-common",
-					"version": "8.2-6"
-				},
-				{
-					"key": "libgmp10_2-6.3.0-p-dfsg-3_arm64",
-					"name": "libgmp10",
-					"version": "2:6.3.0+dfsg-3"
-				},
-				{
-					"key": "libgc1_1-8.2.8-1_arm64",
-					"name": "libgc1",
-					"version": "1:8.2.8-1"
-				},
-				{
-					"key": "libffi8_3.4.8-2_arm64",
-					"name": "libffi8",
-					"version": "3.4.8-2"
+					"key": "libcrypt-dev_1-4.4.38-1_arm64",
+					"name": "libcrypt-dev",
+					"version": "1:4.4.38-1"
 				},
 				{
 					"key": "libcrypt1_1-4.4.38-1_arm64",
@@ -1003,14 +973,34 @@
 					"version": "1:4.4.38-1"
 				},
 				{
-					"key": "patch_2.8-2_arm64",
-					"name": "patch",
-					"version": "2.8-2"
+					"key": "linux-libc-dev_6.12.63-1_arm64",
+					"name": "linux-libc-dev",
+					"version": "6.12.63-1"
 				},
 				{
-					"key": "xz-utils_5.8.1-1_arm64",
-					"name": "xz-utils",
-					"version": "5.8.1-1"
+					"key": "libc-dev-bin_2.41-12-p-deb13u1_arm64",
+					"name": "libc-dev-bin",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libclang1-19_1-19.1.7-3-p-b1_arm64",
+					"name": "libclang1-19",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "libllvm19_1-19.1.7-3-p-b1_arm64",
+					"name": "libllvm19",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "libz3-4_4.13.3-1_arm64",
+					"name": "libz3-4",
+					"version": "4.13.3-1"
+				},
+				{
+					"key": "libxml2_2.12.7-p-dfsg-p-really2.9.14-2.1-p-deb13u2_arm64",
+					"name": "libxml2",
+					"version": "2.12.7+dfsg+really2.9.14-2.1+deb13u2"
 				},
 				{
 					"key": "liblzma5_5.8.1-1_arm64",
@@ -1018,44 +1008,24 @@
 					"version": "5.8.1-1"
 				},
 				{
-					"key": "bzip2_1.0.8-6_arm64",
-					"name": "bzip2",
-					"version": "1.0.8-6"
+					"key": "libffi8_3.4.8-2_arm64",
+					"name": "libffi8",
+					"version": "3.4.8-2"
 				},
 				{
-					"key": "libbz2-1.0_1.0.8-6_arm64",
-					"name": "libbz2-1.0",
-					"version": "1.0.8-6"
+					"key": "libedit2_3.1-20250104-1_arm64",
+					"name": "libedit2",
+					"version": "3.1-20250104-1"
 				},
 				{
-					"key": "tar_1.35-p-dfsg-3.1_arm64",
-					"name": "tar",
-					"version": "1.35+dfsg-3.1"
+					"key": "libtinfo6_6.5-p-20250216-2_arm64",
+					"name": "libtinfo6",
+					"version": "6.5+20250216-2"
 				},
 				{
-					"key": "libselinux1_3.8.1-1_arm64",
-					"name": "libselinux1",
-					"version": "3.8.1-1"
-				},
-				{
-					"key": "libpcre2-8-0_10.46-1_deb13u1_arm64",
-					"name": "libpcre2-8-0",
-					"version": "10.46-1~deb13u1"
-				},
-				{
-					"key": "libacl1_2.3.2-2-p-b1_arm64",
-					"name": "libacl1",
-					"version": "2.3.2-2+b1"
-				},
-				{
-					"key": "libdpkg-perl_1.22.21_arm64",
-					"name": "libdpkg-perl",
-					"version": "1.22.21"
-				},
-				{
-					"key": "dpkg_1.22.21_arm64",
-					"name": "dpkg",
-					"version": "1.22.21"
+					"key": "libbsd0_0.12.2-2_arm64",
+					"name": "libbsd0",
+					"version": "0.12.2-2"
 				},
 				{
 					"key": "libmd0_1.1.0-2-p-b1_arm64",
@@ -1063,79 +1033,29 @@
 					"version": "1.1.0-2+b1"
 				},
 				{
-					"key": "perl_5.40.1-6_arm64",
-					"name": "perl",
-					"version": "5.40.1-6"
+					"key": "llvm-19-linker-tools_1-19.1.7-3-p-b1_arm64",
+					"name": "llvm-19-linker-tools",
+					"version": "1:19.1.7-3+b1"
 				},
 				{
-					"key": "libperl5.40_5.40.1-6_arm64",
-					"name": "libperl5.40",
-					"version": "5.40.1-6"
+					"key": "libclang-common-19-dev_1-19.1.7-3-p-b1_arm64",
+					"name": "libclang-common-19-dev",
+					"version": "1:19.1.7-3+b1"
 				},
 				{
-					"key": "perl-modules-5.40_5.40.1-6_arm64",
-					"name": "perl-modules-5.40",
-					"version": "5.40.1-6"
-				},
-				{
-					"key": "perl-base_5.40.1-6_arm64",
-					"name": "perl-base",
-					"version": "5.40.1-6"
-				},
-				{
-					"key": "libgdbm6t64_1.24-2_arm64",
-					"name": "libgdbm6t64",
-					"version": "1.24-2"
-				},
-				{
-					"key": "libgdbm-compat4t64_1.24-2_arm64",
-					"name": "libgdbm-compat4t64",
-					"version": "1.24-2"
-				},
-				{
-					"key": "libdb5.3t64_5.3.28-p-dfsg2-9_arm64",
-					"name": "libdb5.3t64",
-					"version": "5.3.28+dfsg2-9"
-				},
-				{
-					"key": "g-p--p-_4-14.2.0-1_arm64",
-					"name": "g++",
-					"version": "4:14.2.0-1"
-				},
-				{
-					"key": "gcc-14_14.2.0-19_arm64",
-					"name": "gcc-14",
+					"key": "libobjc-14-dev_14.2.0-19_arm64",
+					"name": "libobjc-14-dev",
 					"version": "14.2.0-19"
 				},
 				{
-					"key": "cpp-14_14.2.0-19_arm64",
-					"name": "cpp-14",
+					"key": "libobjc4_14.2.0-19_arm64",
+					"name": "libobjc4",
 					"version": "14.2.0-19"
 				},
 				{
-					"key": "cpp-14-aarch64-linux-gnu_14.2.0-19_arm64",
-					"name": "cpp-14-aarch64-linux-gnu",
-					"version": "14.2.0-19"
-				},
-				{
-					"key": "libmpfr6_4.2.2-1_arm64",
-					"name": "libmpfr6",
-					"version": "4.2.2-1"
-				},
-				{
-					"key": "libmpc3_1.3.1-1-p-b3_arm64",
-					"name": "libmpc3",
-					"version": "1.3.1-1+b3"
-				},
-				{
-					"key": "libisl23_0.27-1_arm64",
-					"name": "libisl23",
-					"version": "0.27-1"
-				},
-				{
-					"key": "gcc-14-aarch64-linux-gnu_14.2.0-19_arm64",
-					"name": "gcc-14-aarch64-linux-gnu",
-					"version": "14.2.0-19"
+					"key": "libgc1_1-8.2.8-1_arm64",
+					"name": "libgc1",
+					"version": "1:8.2.8-1"
 				},
 				{
 					"key": "libgcc-14-dev_14.2.0-19_arm64",
@@ -1183,94 +1103,34 @@
 					"version": "14.2.0-19"
 				},
 				{
-					"key": "libcc1-0_14.2.0-19_arm64",
-					"name": "libcc1-0",
-					"version": "14.2.0-19"
-				},
-				{
-					"key": "g-p--p--aarch64-linux-gnu_4-14.2.0-1_arm64",
-					"name": "g++-aarch64-linux-gnu",
-					"version": "4:14.2.0-1"
-				},
-				{
-					"key": "g-p--p--14-aarch64-linux-gnu_14.2.0-19_arm64",
-					"name": "g++-14-aarch64-linux-gnu",
-					"version": "14.2.0-19"
-				},
-				{
 					"key": "libstdc-p--p--14-dev_14.2.0-19_arm64",
 					"name": "libstdc++-14-dev",
 					"version": "14.2.0-19"
 				},
 				{
-					"key": "libc6-dev_2.41-12-p-deb13u1_arm64",
-					"name": "libc6-dev",
-					"version": "2.41-12+deb13u1"
-				},
-				{
-					"key": "rpcsvc-proto_1.4.3-1-p-b1_arm64",
-					"name": "rpcsvc-proto",
-					"version": "1.4.3-1+b1"
-				},
-				{
-					"key": "libcrypt-dev_1-4.4.38-1_arm64",
-					"name": "libcrypt-dev",
-					"version": "1:4.4.38-1"
-				},
-				{
-					"key": "linux-libc-dev_6.12.63-1_arm64",
-					"name": "linux-libc-dev",
-					"version": "6.12.63-1"
-				},
-				{
-					"key": "libc-dev-bin_2.41-12-p-deb13u1_arm64",
-					"name": "libc-dev-bin",
-					"version": "2.41-12+deb13u1"
-				},
-				{
-					"key": "gcc-aarch64-linux-gnu_4-14.2.0-1_arm64",
-					"name": "gcc-aarch64-linux-gnu",
-					"version": "4:14.2.0-1"
-				},
-				{
-					"key": "cpp-aarch64-linux-gnu_4-14.2.0-1_arm64",
-					"name": "cpp-aarch64-linux-gnu",
-					"version": "4:14.2.0-1"
-				},
-				{
-					"key": "g-p--p--14_14.2.0-19_arm64",
-					"name": "g++-14",
-					"version": "14.2.0-19"
-				},
-				{
-					"key": "gcc_4-14.2.0-1_arm64",
-					"name": "gcc",
-					"version": "4:14.2.0-1"
-				},
-				{
-					"key": "cpp_4-14.2.0-1_arm64",
-					"name": "cpp",
-					"version": "4:14.2.0-1"
+					"key": "libclang-cpp19_1-19.1.7-3-p-b1_arm64",
+					"name": "libclang-cpp19",
+					"version": "1:19.1.7-3+b1"
 				}
 			],
-			"key": "build-essential_12.12_arm64",
-			"name": "build-essential",
-			"sha256": "3278c93c699f9c12b6f7fe8e03393aa50d1c6b1c4b35da8f15b1c7bae67dc961",
+			"key": "clang_1-19.0-63_arm64",
+			"name": "clang",
+			"sha256": "a9fca67115f164c782fc9acbefeffbc723b8a65efcfe97714440635c3cb4bb11",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/b/build-essential/build-essential_12.12_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-defaults/clang_19.0-63_arm64.deb"
 			],
-			"version": "12.12"
+			"version": "1:19.0-63"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "dpkg-dev_1.22.21_arm64",
-			"name": "dpkg-dev",
-			"sha256": "e83567f7fe139a525b541601b4e044c903d9fcce8e995b9b73b2fd03f5e927a3",
+			"key": "clang-19_1-19.1.7-3-p-b1_arm64",
+			"name": "clang-19",
+			"sha256": "4cb5d48c887e0c1071a058ae8eb30540db77379be50388fcd6b3f9ad1016d54c",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/dpkg/dpkg-dev_1.22.21_all.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/clang-19_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "1.22.21"
+			"version": "1:19.1.7-3+b1"
 		},
 		{
 			"arch": "arm64",
@@ -1385,149 +1245,101 @@
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "make-guile_4.4.1-2_arm64",
-			"name": "make-guile",
-			"sha256": "e44a295976890879faf15a885764da2b8f05ed06b1ce577a0d8fb64c825f8d2d",
+			"key": "libc6-dev_2.41-12-p-deb13u1_arm64",
+			"name": "libc6-dev",
+			"sha256": "506f4cbb9a1aa8c39b475995f553bdb10ce80025f6a0fd2efa65dc197ccb1934",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/m/make-dfsg/make-guile_4.4.1-2_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/glibc/libc6-dev_2.41-12+deb13u1_arm64.deb"
 			],
-			"version": "4.4.1-2"
+			"version": "2.41-12+deb13u1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "guile-3.0-libs_3.0.10-p-really3.0.10-4_arm64",
-			"name": "guile-3.0-libs",
-			"sha256": "f13513a00f1d328fe03ed020c3ebbcb92307c60a145dd63b64ee81842a31b7e2",
+			"key": "rpcsvc-proto_1.4.3-1-p-b1_arm64",
+			"name": "rpcsvc-proto",
+			"sha256": "6ae3c216e6c7d8e042ad3f122b8aa89aff56b2b5174b1c5780a7841b3becd61c",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/guile-3.0/guile-3.0-libs_3.0.10+really3.0.10-4_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/rpcsvc-proto/rpcsvc-proto_1.4.3-1+b1_arm64.deb"
 			],
-			"version": "3.0.10+really3.0.10-4"
+			"version": "1.4.3-1+b1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libunistring5_1.3-2_arm64",
-			"name": "libunistring5",
-			"sha256": "4847467a0e47039837895e88f5a99a4a86a3d8266be40c3c896fc7c10d552dc7",
+			"key": "libcrypt-dev_1-4.4.38-1_arm64",
+			"name": "libcrypt-dev",
+			"sha256": "eec6d4658495cdb8ce505cad91e0918edb8086677f280f3851c07ccd70543054",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libu/libunistring/libunistring5_1.3-2_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libx/libxcrypt/libcrypt-dev_4.4.38-1_arm64.deb"
 			],
-			"version": "1.3-2"
+			"version": "1:4.4.38-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libreadline8t64_8.2-6_arm64",
-			"name": "libreadline8t64",
-			"sha256": "f78ff432b2a627bc04f7eef0e6e2696501c9e06feca748a5b741d5e594429033",
+			"key": "linux-libc-dev_6.12.63-1_arm64",
+			"name": "linux-libc-dev",
+			"sha256": "94c6b3f347d5cc0fe2e0175f25aa2a62c486d0ce31f9e36ca1e9a9a2610bf727",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/readline/libreadline8t64_8.2-6_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/linux/linux-libc-dev_6.12.63-1_all.deb"
 			],
-			"version": "8.2-6"
+			"version": "6.12.63-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libtinfo6_6.5-p-20250216-2_arm64",
-			"name": "libtinfo6",
-			"sha256": "2a747f7fff3c2347c357387a7133df997410f07ba1b1df1a1461a97bd7fbc2fc",
+			"key": "libc-dev-bin_2.41-12-p-deb13u1_arm64",
+			"name": "libc-dev-bin",
+			"sha256": "ce89d7101174947caa29279a118510391287e915d045a1c7034a1a62e3619fb1",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/n/ncurses/libtinfo6_6.5+20250216-2_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/glibc/libc-dev-bin_2.41-12+deb13u1_arm64.deb"
 			],
-			"version": "6.5+20250216-2"
+			"version": "2.41-12+deb13u1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "readline-common_8.2-6_arm64",
-			"name": "readline-common",
-			"sha256": "f77e8aa0bf0de618f11cb0b21658a4ed60f177d63b3cf26d7fc3706b6d0eaaa9",
+			"key": "libclang1-19_1-19.1.7-3-p-b1_arm64",
+			"name": "libclang1-19",
+			"sha256": "e0719cbb2bd6bb3b91f471d1fa41b364eae0604774db56a7b3dd8d24738a5f20",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/readline/readline-common_8.2-6_all.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/libclang1-19_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "8.2-6"
+			"version": "1:19.1.7-3+b1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libgc1_1-8.2.8-1_arm64",
-			"name": "libgc1",
-			"sha256": "58747952e7bd66396023aa8bf53f5039217fddd750b337dfa13352d4fc07f528",
+			"key": "libllvm19_1-19.1.7-3-p-b1_arm64",
+			"name": "libllvm19",
+			"sha256": "8a48e1a49f7fcc3be74e697767d72902f4b03041401d1529bcfad1849df39148",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libg/libgc/libgc1_8.2.8-1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/libllvm19_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "1:8.2.8-1"
+			"version": "1:19.1.7-3+b1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libffi8_3.4.8-2_arm64",
-			"name": "libffi8",
-			"sha256": "d84a783b818f2386627604e64b793eb4ac5bb9ea1ba321a194a1c9c82fe09a01",
+			"key": "libz3-4_4.13.3-1_arm64",
+			"name": "libz3-4",
+			"sha256": "29a7b924a5a38c9ac4e2a64aa11586a9c54f26b579b18e4f75adf8f7c1106e45",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libf/libffi/libffi8_3.4.8-2_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/z/z3/libz3-4_4.13.3-1_arm64.deb"
 			],
-			"version": "3.4.8-2"
+			"version": "4.13.3-1"
 		},
 		{
 			"arch": "arm64",
-			"dependencies": [
-				{
-					"key": "libc6_2.41-12-p-deb13u1_arm64",
-					"name": "libc6",
-					"version": "2.41-12+deb13u1"
-				},
-				{
-					"key": "libgcc-s1_14.2.0-19_arm64",
-					"name": "libgcc-s1",
-					"version": "14.2.0-19"
-				},
-				{
-					"key": "gcc-14-base_14.2.0-19_arm64",
-					"name": "gcc-14-base",
-					"version": "14.2.0-19"
-				}
-			],
-			"key": "patch_2.8-2_arm64",
-			"name": "patch",
-			"sha256": "182ad723623dcd02dfe5054f3515a26d8bf4a9cce717f03e3e514c02cb9e59e8",
+			"dependencies": [],
+			"key": "libxml2_2.12.7-p-dfsg-p-really2.9.14-2.1-p-deb13u2_arm64",
+			"name": "libxml2",
+			"sha256": "1b31fd169ea2b70fdc251981a010ad47eaaa95cdff0d95323a2e4cea0e1cb339",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/patch/patch_2.8-2_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libx/libxml2/libxml2_2.12.7+dfsg+really2.9.14-2.1+deb13u2_arm64.deb"
 			],
-			"version": "2.8-2"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [
-				{
-					"key": "liblzma5_5.8.1-1_arm64",
-					"name": "liblzma5",
-					"version": "5.8.1-1"
-				},
-				{
-					"key": "libc6_2.41-12-p-deb13u1_arm64",
-					"name": "libc6",
-					"version": "2.41-12+deb13u1"
-				},
-				{
-					"key": "libgcc-s1_14.2.0-19_arm64",
-					"name": "libgcc-s1",
-					"version": "14.2.0-19"
-				},
-				{
-					"key": "gcc-14-base_14.2.0-19_arm64",
-					"name": "gcc-14-base",
-					"version": "14.2.0-19"
-				}
-			],
-			"key": "xz-utils_5.8.1-1_arm64",
-			"name": "xz-utils",
-			"sha256": "8967d05fee233800d915221d78fcc3905dececb420d0f704d2255632c5083f59",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/x/xz-utils/xz-utils_5.8.1-1_arm64.deb"
-			],
-			"version": "5.8.1-1"
+			"version": "2.12.7+dfsg+really2.9.14-2.1+deb13u2"
 		},
 		{
 			"arch": "arm64",
@@ -1543,57 +1355,46 @@
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "bzip2_1.0.8-6_arm64",
-			"name": "bzip2",
-			"sha256": "9fa8514c3fb3f363e7fa8bc85f699aaf15e747afaf220c57b978e9b74fd568bc",
+			"key": "libffi8_3.4.8-2_arm64",
+			"name": "libffi8",
+			"sha256": "d84a783b818f2386627604e64b793eb4ac5bb9ea1ba321a194a1c9c82fe09a01",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/b/bzip2/bzip2_1.0.8-6_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libf/libffi/libffi8_3.4.8-2_arm64.deb"
 			],
-			"version": "1.0.8-6"
+			"version": "3.4.8-2"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libbz2-1.0_1.0.8-6_arm64",
-			"name": "libbz2-1.0",
-			"sha256": "3537fe4fc577a60c8a9568873cd577db7ebc135eb8bb1825f18caf8972d9d2f2",
+			"key": "libedit2_3.1-20250104-1_arm64",
+			"name": "libedit2",
+			"sha256": "496c31df89fac9cb7e98102fcc21daf887376dcd9914f6322c86dd5bd4360ff1",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/b/bzip2/libbz2-1.0_1.0.8-6_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libe/libedit/libedit2_3.1-20250104-1_arm64.deb"
 			],
-			"version": "1.0.8-6"
+			"version": "3.1-20250104-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "tar_1.35-p-dfsg-3.1_arm64",
-			"name": "tar",
-			"sha256": "c460a8294202ca3802b7c703b0bd70dd8bda1f2fc8785839595cf9d5e060d71b",
+			"key": "libtinfo6_6.5-p-20250216-2_arm64",
+			"name": "libtinfo6",
+			"sha256": "2a747f7fff3c2347c357387a7133df997410f07ba1b1df1a1461a97bd7fbc2fc",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/t/tar/tar_1.35+dfsg-3.1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/n/ncurses/libtinfo6_6.5+20250216-2_arm64.deb"
 			],
-			"version": "1.35+dfsg-3.1"
+			"version": "6.5+20250216-2"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libdpkg-perl_1.22.21_arm64",
-			"name": "libdpkg-perl",
-			"sha256": "9e58a91c859751b60e45231520bc59b294999d2b73672f5325f3521e7767cf01",
+			"key": "libbsd0_0.12.2-2_arm64",
+			"name": "libbsd0",
+			"sha256": "6827c1b3ad8dcbf3478803f9150359433e3376a3bde01c4503888a22eb3924e3",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/dpkg/libdpkg-perl_1.22.21_all.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libb/libbsd/libbsd0_0.12.2-2_arm64.deb"
 			],
-			"version": "1.22.21"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "dpkg_1.22.21_arm64",
-			"name": "dpkg",
-			"sha256": "e6d4c5b6dd41aaa427846e2506cfb9f27cf48f090208f00bb574ece4dcd31796",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/dpkg/dpkg_1.22.21_arm64.deb"
-			],
-			"version": "1.22.21"
+			"version": "0.12.2-2"
 		},
 		{
 			"arch": "arm64",
@@ -1609,188 +1410,57 @@
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "perl_5.40.1-6_arm64",
-			"name": "perl",
-			"sha256": "68e82fa4deba7c9dc6b58c73f79b514f77521435b379e5680b8b8adfcd1d2b33",
+			"key": "llvm-19-linker-tools_1-19.1.7-3-p-b1_arm64",
+			"name": "llvm-19-linker-tools",
+			"sha256": "2538a8ea604718a02cae7ffab7ee2d537fab2e5eed256584a0bd475bddc3da39",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/perl/perl_5.40.1-6_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/llvm-19-linker-tools_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "5.40.1-6"
+			"version": "1:19.1.7-3+b1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libperl5.40_5.40.1-6_arm64",
-			"name": "libperl5.40",
-			"sha256": "3ae323c6210a7844fb96aedec078b11a9d52405d77ef3adc4e5d4b55bce235e2",
+			"key": "libclang-common-19-dev_1-19.1.7-3-p-b1_arm64",
+			"name": "libclang-common-19-dev",
+			"sha256": "fc0f2c5ffd2b2d7cd0119ed4fb1050c5757d0ed20a4f5c0964d8d737c73b0843",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/perl/libperl5.40_5.40.1-6_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/libclang-common-19-dev_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "5.40.1-6"
+			"version": "1:19.1.7-3+b1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "perl-modules-5.40_5.40.1-6_arm64",
-			"name": "perl-modules-5.40",
-			"sha256": "dfd42c1bf0c45858488ad666b90de17f81b55e6f9c0d8ca530c27b4a66c08b0b",
+			"key": "libobjc-14-dev_14.2.0-19_arm64",
+			"name": "libobjc-14-dev",
+			"sha256": "b248dc482ad75e0dbe64e70a468ce61b2c167fe63420185290dd441b28cd1357",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/perl/perl-modules-5.40_5.40.1-6_all.deb"
-			],
-			"version": "5.40.1-6"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [
-				{
-					"key": "libcrypt1_1-4.4.38-1_arm64",
-					"name": "libcrypt1",
-					"version": "1:4.4.38-1"
-				},
-				{
-					"key": "libc6_2.41-12-p-deb13u1_arm64",
-					"name": "libc6",
-					"version": "2.41-12+deb13u1"
-				},
-				{
-					"key": "libgcc-s1_14.2.0-19_arm64",
-					"name": "libgcc-s1",
-					"version": "14.2.0-19"
-				},
-				{
-					"key": "gcc-14-base_14.2.0-19_arm64",
-					"name": "gcc-14-base",
-					"version": "14.2.0-19"
-				}
-			],
-			"key": "perl-base_5.40.1-6_arm64",
-			"name": "perl-base",
-			"sha256": "65eef1a545207309b9ce87139be81be9dd12f24b0bd12be935cb36e51bdb6f2d",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/perl/perl-base_5.40.1-6_arm64.deb"
-			],
-			"version": "5.40.1-6"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "libgdbm6t64_1.24-2_arm64",
-			"name": "libgdbm6t64",
-			"sha256": "329efe726e24a413b9933e298ce24d255973ec111eea0ca721157968fd24156a",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gdbm/libgdbm6t64_1.24-2_arm64.deb"
-			],
-			"version": "1.24-2"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "libgdbm-compat4t64_1.24-2_arm64",
-			"name": "libgdbm-compat4t64",
-			"sha256": "266b9a9e8d1ecc4393ebd29bec7e7c0fe1505b1d8755033af9e15df161316627",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gdbm/libgdbm-compat4t64_1.24-2_arm64.deb"
-			],
-			"version": "1.24-2"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "libdb5.3t64_5.3.28-p-dfsg2-9_arm64",
-			"name": "libdb5.3t64",
-			"sha256": "bfef56508d69fd3f940668f6abd0a466a362cabf63c4cc1c787cc58d28f6e92f",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/db5.3/libdb5.3t64_5.3.28+dfsg2-9_arm64.deb"
-			],
-			"version": "5.3.28+dfsg2-9"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "g-p--p-_4-14.2.0-1_arm64",
-			"name": "g++",
-			"sha256": "e4b8f8fae7c838c40b9db29251b152c9af03a4d4463388d69efdda66c4e97e79",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-defaults/g++_14.2.0-1_arm64.deb"
-			],
-			"version": "4:14.2.0-1"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "gcc-14_14.2.0-19_arm64",
-			"name": "gcc-14",
-			"sha256": "f4ba77903d7efc3c64c69a8a98c7efa8ea1ae4331521bb74abd76bcc43f1b576",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/gcc-14_14.2.0-19_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/libobjc-14-dev_14.2.0-19_arm64.deb"
 			],
 			"version": "14.2.0-19"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "cpp-14_14.2.0-19_arm64",
-			"name": "cpp-14",
-			"sha256": "0b440241f7c3e2e87f2d0f1dd36792c4e2705d38a699ed331818799f21ef9437",
+			"key": "libobjc4_14.2.0-19_arm64",
+			"name": "libobjc4",
+			"sha256": "2c402e31c3636f8c5be1f1c4a4716e9335e570862b7e393ade1e63bde9ff933c",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/cpp-14_14.2.0-19_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/libobjc4_14.2.0-19_arm64.deb"
 			],
 			"version": "14.2.0-19"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "cpp-14-aarch64-linux-gnu_14.2.0-19_arm64",
-			"name": "cpp-14-aarch64-linux-gnu",
-			"sha256": "8e588ac3efe06f7784b08feac584c70e6965b74c045bae7e4e80bb42938f7dbe",
+			"key": "libgc1_1-8.2.8-1_arm64",
+			"name": "libgc1",
+			"sha256": "58747952e7bd66396023aa8bf53f5039217fddd750b337dfa13352d4fc07f528",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/cpp-14-aarch64-linux-gnu_14.2.0-19_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libg/libgc/libgc1_8.2.8-1_arm64.deb"
 			],
-			"version": "14.2.0-19"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "libmpfr6_4.2.2-1_arm64",
-			"name": "libmpfr6",
-			"sha256": "628a4ef58cc6815880f72e9d3953984a379a017e4042bc575f1fcbf3954d79ac",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/m/mpfr4/libmpfr6_4.2.2-1_arm64.deb"
-			],
-			"version": "4.2.2-1"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "libmpc3_1.3.1-1-p-b3_arm64",
-			"name": "libmpc3",
-			"sha256": "d4cfe026a624e51641c80ef2af77387185714f62f3b5c87035e62d9ed8d9eec1",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/m/mpclib3/libmpc3_1.3.1-1+b3_arm64.deb"
-			],
-			"version": "1.3.1-1+b3"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "libisl23_0.27-1_arm64",
-			"name": "libisl23",
-			"sha256": "21c490db3fa5f0a517c55090a199334da6164589772ebd922dff1e569c78515d",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/i/isl/libisl23_0.27-1_arm64.deb"
-			],
-			"version": "0.27-1"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "gcc-14-aarch64-linux-gnu_14.2.0-19_arm64",
-			"name": "gcc-14-aarch64-linux-gnu",
-			"sha256": "5ff736a332ba5d60ad463355ed25c8c39da1281acf9155cc2f8a55fc1d478be8",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/gcc-14-aarch64-linux-gnu_14.2.0-19_arm64.deb"
-			],
-			"version": "14.2.0-19"
+			"version": "1:8.2.8-1"
 		},
 		{
 			"arch": "arm64",
@@ -1894,39 +1564,6 @@
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libcc1-0_14.2.0-19_arm64",
-			"name": "libcc1-0",
-			"sha256": "f5e390b5fd65432b820afa403a61ab4d6286948fc07ca3aacb4d230a81f5c9a5",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/libcc1-0_14.2.0-19_arm64.deb"
-			],
-			"version": "14.2.0-19"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "g-p--p--aarch64-linux-gnu_4-14.2.0-1_arm64",
-			"name": "g++-aarch64-linux-gnu",
-			"sha256": "655d9a7cb70b0342f5f1bf4f2a7b0241df15d49ab9a2567445c785b7592122f9",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-defaults/g++-aarch64-linux-gnu_14.2.0-1_arm64.deb"
-			],
-			"version": "4:14.2.0-1"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
-			"key": "g-p--p--14-aarch64-linux-gnu_14.2.0-19_arm64",
-			"name": "g++-14-aarch64-linux-gnu",
-			"sha256": "411dac8f1c1d0293e58deddeb170c641ad82c56d51a95f056ee12ba02c24288b",
-			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/g++-14-aarch64-linux-gnu_14.2.0-19_arm64.deb"
-			],
-			"version": "14.2.0-19"
-		},
-		{
-			"arch": "arm64",
-			"dependencies": [],
 			"key": "libstdc-p--p--14-dev_14.2.0-19_arm64",
 			"name": "libstdc++-14-dev",
 			"sha256": "8760122d044cd8eb8c69426311d6b5ce7bb8f0f76e9cda1944d153ae878138f8",
@@ -1938,112 +1575,781 @@
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libc6-dev_2.41-12-p-deb13u1_arm64",
-			"name": "libc6-dev",
-			"sha256": "506f4cbb9a1aa8c39b475995f553bdb10ce80025f6a0fd2efa65dc197ccb1934",
+			"key": "libclang-cpp19_1-19.1.7-3-p-b1_arm64",
+			"name": "libclang-cpp19",
+			"sha256": "9c0465b890bc962467043fa47dd0fc4dbb278422c3fdf7f7f0e1c3e6e8a13620",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/glibc/libc6-dev_2.41-12+deb13u1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/libclang-cpp19_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "2.41-12+deb13u1"
+			"version": "1:19.1.7-3+b1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [
+				{
+					"key": "lld-19_1-19.1.7-3-p-b1_arm64",
+					"name": "lld-19",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "zlib1g_1-1.3.dfsg-p-really1.3.1-1-p-b1_arm64",
+					"name": "zlib1g",
+					"version": "1:1.3.dfsg+really1.3.1-1+b1"
+				},
+				{
+					"key": "libc6_2.41-12-p-deb13u1_arm64",
+					"name": "libc6",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libgcc-s1_14.2.0-19_arm64",
+					"name": "libgcc-s1",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "gcc-14-base_14.2.0-19_arm64",
+					"name": "gcc-14-base",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "libzstd1_1.5.7-p-dfsg-1_arm64",
+					"name": "libzstd1",
+					"version": "1.5.7+dfsg-1"
+				},
+				{
+					"key": "libstdc-p--p-6_14.2.0-19_arm64",
+					"name": "libstdc++6",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "libllvm19_1-19.1.7-3-p-b1_arm64",
+					"name": "libllvm19",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "libz3-4_4.13.3-1_arm64",
+					"name": "libz3-4",
+					"version": "4.13.3-1"
+				},
+				{
+					"key": "libxml2_2.12.7-p-dfsg-p-really2.9.14-2.1-p-deb13u2_arm64",
+					"name": "libxml2",
+					"version": "2.12.7+dfsg+really2.9.14-2.1+deb13u2"
+				},
+				{
+					"key": "liblzma5_5.8.1-1_arm64",
+					"name": "liblzma5",
+					"version": "5.8.1-1"
+				},
+				{
+					"key": "libffi8_3.4.8-2_arm64",
+					"name": "libffi8",
+					"version": "3.4.8-2"
+				},
+				{
+					"key": "libedit2_3.1-20250104-1_arm64",
+					"name": "libedit2",
+					"version": "3.1-20250104-1"
+				},
+				{
+					"key": "libtinfo6_6.5-p-20250216-2_arm64",
+					"name": "libtinfo6",
+					"version": "6.5+20250216-2"
+				},
+				{
+					"key": "libbsd0_0.12.2-2_arm64",
+					"name": "libbsd0",
+					"version": "0.12.2-2"
+				},
+				{
+					"key": "libmd0_1.1.0-2-p-b1_arm64",
+					"name": "libmd0",
+					"version": "1.1.0-2+b1"
+				}
+			],
+			"key": "lld_1-19.0-63_arm64",
+			"name": "lld",
+			"sha256": "4887628f9475305ffddd36cf5fec8db5175d69e01d679cbd0ed309cbc8311ee0",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-defaults/lld_19.0-63_arm64.deb"
+			],
+			"version": "1:19.0-63"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "rpcsvc-proto_1.4.3-1-p-b1_arm64",
-			"name": "rpcsvc-proto",
-			"sha256": "6ae3c216e6c7d8e042ad3f122b8aa89aff56b2b5174b1c5780a7841b3becd61c",
+			"key": "lld-19_1-19.1.7-3-p-b1_arm64",
+			"name": "lld-19",
+			"sha256": "e7d180df5b58c9da4571ad0105ae22277df5a33d68f72a417f85ca75d849934a",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/rpcsvc-proto/rpcsvc-proto_1.4.3-1+b1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/lld-19_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "1.4.3-1+b1"
+			"version": "1:19.1.7-3+b1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [
+				{
+					"key": "llvm-19_1-19.1.7-3-p-b1_arm64",
+					"name": "llvm-19",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "zlib1g_1-1.3.dfsg-p-really1.3.1-1-p-b1_arm64",
+					"name": "zlib1g",
+					"version": "1:1.3.dfsg+really1.3.1-1+b1"
+				},
+				{
+					"key": "libc6_2.41-12-p-deb13u1_arm64",
+					"name": "libc6",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libgcc-s1_14.2.0-19_arm64",
+					"name": "libgcc-s1",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "gcc-14-base_14.2.0-19_arm64",
+					"name": "gcc-14-base",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "libzstd1_1.5.7-p-dfsg-1_arm64",
+					"name": "libzstd1",
+					"version": "1.5.7+dfsg-1"
+				},
+				{
+					"key": "libz3-4_4.13.3-1_arm64",
+					"name": "libz3-4",
+					"version": "4.13.3-1"
+				},
+				{
+					"key": "libstdc-p--p-6_14.2.0-19_arm64",
+					"name": "libstdc++6",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "libpfm4_4.13.0-p-git99-gc5587f9-1_arm64",
+					"name": "libpfm4",
+					"version": "4.13.0+git99-gc5587f9-1"
+				},
+				{
+					"key": "libllvm19_1-19.1.7-3-p-b1_arm64",
+					"name": "libllvm19",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "libxml2_2.12.7-p-dfsg-p-really2.9.14-2.1-p-deb13u2_arm64",
+					"name": "libxml2",
+					"version": "2.12.7+dfsg+really2.9.14-2.1+deb13u2"
+				},
+				{
+					"key": "liblzma5_5.8.1-1_arm64",
+					"name": "liblzma5",
+					"version": "5.8.1-1"
+				},
+				{
+					"key": "libffi8_3.4.8-2_arm64",
+					"name": "libffi8",
+					"version": "3.4.8-2"
+				},
+				{
+					"key": "libedit2_3.1-20250104-1_arm64",
+					"name": "libedit2",
+					"version": "3.1-20250104-1"
+				},
+				{
+					"key": "libtinfo6_6.5-p-20250216-2_arm64",
+					"name": "libtinfo6",
+					"version": "6.5+20250216-2"
+				},
+				{
+					"key": "libbsd0_0.12.2-2_arm64",
+					"name": "libbsd0",
+					"version": "0.12.2-2"
+				},
+				{
+					"key": "libmd0_1.1.0-2-p-b1_arm64",
+					"name": "libmd0",
+					"version": "1.1.0-2+b1"
+				},
+				{
+					"key": "libcurl4t64_8.14.1-2-p-deb13u2_arm64",
+					"name": "libcurl4t64",
+					"version": "8.14.1-2+deb13u2"
+				},
+				{
+					"key": "libssl3t64_3.5.4-1_deb13u1_arm64",
+					"name": "libssl3t64",
+					"version": "3.5.4-1~deb13u1"
+				},
+				{
+					"key": "openssl-provider-legacy_3.5.4-1_deb13u1_arm64",
+					"name": "openssl-provider-legacy",
+					"version": "3.5.4-1~deb13u1"
+				},
+				{
+					"key": "libssh2-1t64_1.11.1-1_arm64",
+					"name": "libssh2-1t64",
+					"version": "1.11.1-1"
+				},
+				{
+					"key": "librtmp1_2.4-p-20151223.gitfa8646d.1-2-p-b5_arm64",
+					"name": "librtmp1",
+					"version": "2.4+20151223.gitfa8646d.1-2+b5"
+				},
+				{
+					"key": "libnettle8t64_3.10.1-1_arm64",
+					"name": "libnettle8t64",
+					"version": "3.10.1-1"
+				},
+				{
+					"key": "libhogweed6t64_3.10.1-1_arm64",
+					"name": "libhogweed6t64",
+					"version": "3.10.1-1"
+				},
+				{
+					"key": "libgmp10_2-6.3.0-p-dfsg-3_arm64",
+					"name": "libgmp10",
+					"version": "2:6.3.0+dfsg-3"
+				},
+				{
+					"key": "libgnutls30t64_3.8.9-3-p-deb13u1_arm64",
+					"name": "libgnutls30t64",
+					"version": "3.8.9-3+deb13u1"
+				},
+				{
+					"key": "libunistring5_1.3-2_arm64",
+					"name": "libunistring5",
+					"version": "1.3-2"
+				},
+				{
+					"key": "libtasn1-6_4.20.0-2_arm64",
+					"name": "libtasn1-6",
+					"version": "4.20.0-2"
+				},
+				{
+					"key": "libp11-kit0_0.25.5-3_arm64",
+					"name": "libp11-kit0",
+					"version": "0.25.5-3"
+				},
+				{
+					"key": "libidn2-0_2.3.8-2_arm64",
+					"name": "libidn2-0",
+					"version": "2.3.8-2"
+				},
+				{
+					"key": "libpsl5t64_0.21.2-1.1-p-b1_arm64",
+					"name": "libpsl5t64",
+					"version": "0.21.2-1.1+b1"
+				},
+				{
+					"key": "libnghttp3-9_1.8.0-1_arm64",
+					"name": "libnghttp3-9",
+					"version": "1.8.0-1"
+				},
+				{
+					"key": "libnghttp2-14_1.64.0-1.1_arm64",
+					"name": "libnghttp2-14",
+					"version": "1.64.0-1.1"
+				},
+				{
+					"key": "libldap2_2.6.10-p-dfsg-1_arm64",
+					"name": "libldap2",
+					"version": "2.6.10+dfsg-1"
+				},
+				{
+					"key": "libsasl2-2_2.1.28-p-dfsg1-9_arm64",
+					"name": "libsasl2-2",
+					"version": "2.1.28+dfsg1-9"
+				},
+				{
+					"key": "libsasl2-modules-db_2.1.28-p-dfsg1-9_arm64",
+					"name": "libsasl2-modules-db",
+					"version": "2.1.28+dfsg1-9"
+				},
+				{
+					"key": "libdb5.3t64_5.3.28-p-dfsg2-9_arm64",
+					"name": "libdb5.3t64",
+					"version": "5.3.28+dfsg2-9"
+				},
+				{
+					"key": "libgssapi-krb5-2_1.21.3-5_arm64",
+					"name": "libgssapi-krb5-2",
+					"version": "1.21.3-5"
+				},
+				{
+					"key": "libkrb5support0_1.21.3-5_arm64",
+					"name": "libkrb5support0",
+					"version": "1.21.3-5"
+				},
+				{
+					"key": "libk5crypto3_1.21.3-5_arm64",
+					"name": "libk5crypto3",
+					"version": "1.21.3-5"
+				},
+				{
+					"key": "libcom-err2_1.47.2-3-p-b7_arm64",
+					"name": "libcom-err2",
+					"version": "1.47.2-3+b7"
+				},
+				{
+					"key": "libkrb5-3_1.21.3-5_arm64",
+					"name": "libkrb5-3",
+					"version": "1.21.3-5"
+				},
+				{
+					"key": "libkeyutils1_1.6.3-6_arm64",
+					"name": "libkeyutils1",
+					"version": "1.6.3-6"
+				},
+				{
+					"key": "libbrotli1_1.1.0-2-p-b7_arm64",
+					"name": "libbrotli1",
+					"version": "1.1.0-2+b7"
+				},
+				{
+					"key": "llvm-19-linker-tools_1-19.1.7-3-p-b1_arm64",
+					"name": "llvm-19-linker-tools",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "llvm-19-runtime_1-19.1.7-3-p-b1_arm64",
+					"name": "llvm-19-runtime",
+					"version": "1:19.1.7-3+b1"
+				},
+				{
+					"key": "llvm-runtime_1-19.0-63_arm64",
+					"name": "llvm-runtime",
+					"version": "1:19.0-63"
+				}
+			],
+			"key": "llvm_1-19.0-63_arm64",
+			"name": "llvm",
+			"sha256": "117c9d8dbdfbd18cb8dec96a6b35ec64b7ca8b57208bbd7ed3e84de878ac5b5d",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-defaults/llvm_19.0-63_arm64.deb"
+			],
+			"version": "1:19.0-63"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libcrypt-dev_1-4.4.38-1_arm64",
-			"name": "libcrypt-dev",
-			"sha256": "eec6d4658495cdb8ce505cad91e0918edb8086677f280f3851c07ccd70543054",
+			"key": "llvm-19_1-19.1.7-3-p-b1_arm64",
+			"name": "llvm-19",
+			"sha256": "3af41d4e45199392df4eed685579c0b0f5587e925bab0d6752fe88efbd97ad9c",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libx/libxcrypt/libcrypt-dev_4.4.38-1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/llvm-19_19.1.7-3+b1_arm64.deb"
 			],
-			"version": "1:4.4.38-1"
+			"version": "1:19.1.7-3+b1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "linux-libc-dev_6.12.63-1_arm64",
-			"name": "linux-libc-dev",
-			"sha256": "94c6b3f347d5cc0fe2e0175f25aa2a62c486d0ce31f9e36ca1e9a9a2610bf727",
+			"key": "libpfm4_4.13.0-p-git99-gc5587f9-1_arm64",
+			"name": "libpfm4",
+			"sha256": "5041567ffd6bdb2f46756ee4249d0d21576ac95b059429dc1250a8d24b614e6d",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/linux/linux-libc-dev_6.12.63-1_all.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libp/libpfm4/libpfm4_4.13.0+git99-gc5587f9-1_arm64.deb"
 			],
-			"version": "6.12.63-1"
+			"version": "4.13.0+git99-gc5587f9-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "libc-dev-bin_2.41-12-p-deb13u1_arm64",
-			"name": "libc-dev-bin",
-			"sha256": "ce89d7101174947caa29279a118510391287e915d045a1c7034a1a62e3619fb1",
+			"key": "libcurl4t64_8.14.1-2-p-deb13u2_arm64",
+			"name": "libcurl4t64",
+			"sha256": "090d1c28f25f3c4cea4d5c0fbe06b3e0f5977d086519c70da1c70484f32e8847",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/glibc/libc-dev-bin_2.41-12+deb13u1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/c/curl/libcurl4t64_8.14.1-2+deb13u2_arm64.deb"
 			],
-			"version": "2.41-12+deb13u1"
+			"version": "8.14.1-2+deb13u2"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "gcc-aarch64-linux-gnu_4-14.2.0-1_arm64",
-			"name": "gcc-aarch64-linux-gnu",
-			"sha256": "c8390408ed90cc96d4fead68e313ed5ce147f1654807c23235818d535d2d7d7e",
+			"key": "libssh2-1t64_1.11.1-1_arm64",
+			"name": "libssh2-1t64",
+			"sha256": "c4eefd2ef53766d4cebbdae42cba1cc46e4e4f1b818b45877c832633f3235062",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-defaults/gcc-aarch64-linux-gnu_14.2.0-1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libs/libssh2/libssh2-1t64_1.11.1-1_arm64.deb"
 			],
-			"version": "4:14.2.0-1"
+			"version": "1.11.1-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "cpp-aarch64-linux-gnu_4-14.2.0-1_arm64",
-			"name": "cpp-aarch64-linux-gnu",
-			"sha256": "bd9c9f4536a0aea285c4735d2dfedff624f8457b8f1bb3d15ab924e029cd7aff",
+			"key": "librtmp1_2.4-p-20151223.gitfa8646d.1-2-p-b5_arm64",
+			"name": "librtmp1",
+			"sha256": "20d52d20c4834158e956ae8e1d42a61d22330062052116d5422daa2d3b1d433b",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-defaults/cpp-aarch64-linux-gnu_14.2.0-1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/rtmpdump/librtmp1_2.4+20151223.gitfa8646d.1-2+b5_arm64.deb"
 			],
-			"version": "4:14.2.0-1"
+			"version": "2.4+20151223.gitfa8646d.1-2+b5"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "g-p--p--14_14.2.0-19_arm64",
-			"name": "g++-14",
-			"sha256": "f4813643994aa96c527e687c9c7d01855aa5fdd86e63cc8bd05c63ecc9373796",
+			"key": "libnettle8t64_3.10.1-1_arm64",
+			"name": "libnettle8t64",
+			"sha256": "16107ce5a7b522da021fa8aba42d42af9c5e90ddabfcda3710aff6ea95808ee0",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-14/g++-14_14.2.0-19_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/n/nettle/libnettle8t64_3.10.1-1_arm64.deb"
 			],
-			"version": "14.2.0-19"
+			"version": "3.10.1-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "gcc_4-14.2.0-1_arm64",
-			"name": "gcc",
-			"sha256": "f543b52e29a6780a78c73cf08e551e8e524d623c1092c477cfd8beb5285a86f5",
+			"key": "libhogweed6t64_3.10.1-1_arm64",
+			"name": "libhogweed6t64",
+			"sha256": "cb92d5a51c4fd6c7b7cbb62aaa60c7af830d0bea5b410fb1f47ee685e26944d1",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-defaults/gcc_14.2.0-1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/n/nettle/libhogweed6t64_3.10.1-1_arm64.deb"
 			],
-			"version": "4:14.2.0-1"
+			"version": "3.10.1-1"
 		},
 		{
 			"arch": "arm64",
 			"dependencies": [],
-			"key": "cpp_4-14.2.0-1_arm64",
-			"name": "cpp",
-			"sha256": "88b702b0fa5942a4ee52c27f1ccf6316b831357e86693b709d216ba43348172e",
+			"key": "libgnutls30t64_3.8.9-3-p-deb13u1_arm64",
+			"name": "libgnutls30t64",
+			"sha256": "0653cda1bfefdba8a19ed54710816a54d18650d848959cf599c9ebcb2b0f70ca",
 			"urls": [
-				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gcc-defaults/cpp_14.2.0-1_arm64.deb"
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/gnutls28/libgnutls30t64_3.8.9-3+deb13u1_arm64.deb"
 			],
-			"version": "4:14.2.0-1"
+			"version": "3.8.9-3+deb13u1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libunistring5_1.3-2_arm64",
+			"name": "libunistring5",
+			"sha256": "4847467a0e47039837895e88f5a99a4a86a3d8266be40c3c896fc7c10d552dc7",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libu/libunistring/libunistring5_1.3-2_arm64.deb"
+			],
+			"version": "1.3-2"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libtasn1-6_4.20.0-2_arm64",
+			"name": "libtasn1-6",
+			"sha256": "94fdbc4861998837a1e7fd9e40b1883c3647705566126e89c51304c1f9e3ec69",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libt/libtasn1-6/libtasn1-6_4.20.0-2_arm64.deb"
+			],
+			"version": "4.20.0-2"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libp11-kit0_0.25.5-3_arm64",
+			"name": "libp11-kit0",
+			"sha256": "78bfc746e68a5217e845f488f69100ed89d10c8886fbd3ffce937acb6a7d88fb",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/p11-kit/libp11-kit0_0.25.5-3_arm64.deb"
+			],
+			"version": "0.25.5-3"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libidn2-0_2.3.8-2_arm64",
+			"name": "libidn2-0",
+			"sha256": "d2e5cef812f15db1eeb35f0a193158ee102a9e94284036c0e293521f2761d2d7",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libi/libidn2/libidn2-0_2.3.8-2_arm64.deb"
+			],
+			"version": "2.3.8-2"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libpsl5t64_0.21.2-1.1-p-b1_arm64",
+			"name": "libpsl5t64",
+			"sha256": "7ea03d8a7d16edce7b1b1e94980c058c0f1fb3c595eb9154b0e8590d0e7f75af",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/libp/libpsl/libpsl5t64_0.21.2-1.1+b1_arm64.deb"
+			],
+			"version": "0.21.2-1.1+b1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libnghttp3-9_1.8.0-1_arm64",
+			"name": "libnghttp3-9",
+			"sha256": "26bfb8d1bead043f57d95663bab02f7611e7078fb7cf71383fa480c4b4c24d81",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/n/nghttp3/libnghttp3-9_1.8.0-1_arm64.deb"
+			],
+			"version": "1.8.0-1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libnghttp2-14_1.64.0-1.1_arm64",
+			"name": "libnghttp2-14",
+			"sha256": "34343e4eae830320a96d4bbdc989ba2611fbc4459ac1cff8feb2beb22c75a1ea",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/n/nghttp2/libnghttp2-14_1.64.0-1.1_arm64.deb"
+			],
+			"version": "1.64.0-1.1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libldap2_2.6.10-p-dfsg-1_arm64",
+			"name": "libldap2",
+			"sha256": "38fae6af20d41e4b0a8ea1b96d0b81a7a5551a61595bc866c9af870eadfdf1bd",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/o/openldap/libldap2_2.6.10+dfsg-1_arm64.deb"
+			],
+			"version": "2.6.10+dfsg-1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libsasl2-2_2.1.28-p-dfsg1-9_arm64",
+			"name": "libsasl2-2",
+			"sha256": "6431628c62524c8397255c1c4a7c7ef63661b801f3be9a59ad41e7a2e46e6210",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/c/cyrus-sasl2/libsasl2-2_2.1.28+dfsg1-9_arm64.deb"
+			],
+			"version": "2.1.28+dfsg1-9"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libsasl2-modules-db_2.1.28-p-dfsg1-9_arm64",
+			"name": "libsasl2-modules-db",
+			"sha256": "ed6eb05f8ded71ab16a0369845805b373fc8a71c0e7d33f73fa2fb11e83a1977",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/c/cyrus-sasl2/libsasl2-modules-db_2.1.28+dfsg1-9_arm64.deb"
+			],
+			"version": "2.1.28+dfsg1-9"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libdb5.3t64_5.3.28-p-dfsg2-9_arm64",
+			"name": "libdb5.3t64",
+			"sha256": "bfef56508d69fd3f940668f6abd0a466a362cabf63c4cc1c787cc58d28f6e92f",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/db5.3/libdb5.3t64_5.3.28+dfsg2-9_arm64.deb"
+			],
+			"version": "5.3.28+dfsg2-9"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libgssapi-krb5-2_1.21.3-5_arm64",
+			"name": "libgssapi-krb5-2",
+			"sha256": "99fd6203890ac144ba9907fefb76c84e733f17f31853af8c312c16d5c077c351",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/k/krb5/libgssapi-krb5-2_1.21.3-5_arm64.deb"
+			],
+			"version": "1.21.3-5"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libkrb5support0_1.21.3-5_arm64",
+			"name": "libkrb5support0",
+			"sha256": "2c7bb86d48262263b0c1df9bc45e9330aaa32bcd1a8860c2e0be25fc4cb14053",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/k/krb5/libkrb5support0_1.21.3-5_arm64.deb"
+			],
+			"version": "1.21.3-5"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libk5crypto3_1.21.3-5_arm64",
+			"name": "libk5crypto3",
+			"sha256": "5ed29027bb77365ecbf4e1b54701cf802871e0a82c08f29c4177057e08d5469a",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/k/krb5/libk5crypto3_1.21.3-5_arm64.deb"
+			],
+			"version": "1.21.3-5"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libcom-err2_1.47.2-3-p-b7_arm64",
+			"name": "libcom-err2",
+			"sha256": "6ee76a587de329d292650d6ca19a664a601871bf90fd6abfac73a5be4449ffe7",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/e/e2fsprogs/libcom-err2_1.47.2-3+b7_arm64.deb"
+			],
+			"version": "1.47.2-3+b7"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libkrb5-3_1.21.3-5_arm64",
+			"name": "libkrb5-3",
+			"sha256": "0f8d4555b39483ac003814b6f9b9d312dca4492ff4b34b084745b01dac514b4d",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/k/krb5/libkrb5-3_1.21.3-5_arm64.deb"
+			],
+			"version": "1.21.3-5"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libkeyutils1_1.6.3-6_arm64",
+			"name": "libkeyutils1",
+			"sha256": "5e680f317a6613161986417fb3ed63007c9228343f5ac2348551b103cc7fd7b4",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/k/keyutils/libkeyutils1_1.6.3-6_arm64.deb"
+			],
+			"version": "1.6.3-6"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libbrotli1_1.1.0-2-p-b7_arm64",
+			"name": "libbrotli1",
+			"sha256": "10270398c4842e71c72b4081fa1761728b3225d6c8dce7c58d5baafe58a5e18f",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/b/brotli/libbrotli1_1.1.0-2+b7_arm64.deb"
+			],
+			"version": "1.1.0-2+b7"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "llvm-19-runtime_1-19.1.7-3-p-b1_arm64",
+			"name": "llvm-19-runtime",
+			"sha256": "59bc2a621de565aaee50707ca2c68b4def034613cae83a35e20d2a95bc3c966d",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-toolchain-19/llvm-19-runtime_19.1.7-3+b1_arm64.deb"
+			],
+			"version": "1:19.1.7-3+b1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "llvm-runtime_1-19.0-63_arm64",
+			"name": "llvm-runtime",
+			"sha256": "fba005e0e1ac1164afe2c9374d455fd1e423bf0523eb363b65b49b78cb55e9fb",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/l/llvm-defaults/llvm-runtime_19.0-63_arm64.deb"
+			],
+			"version": "1:19.0-63"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [
+				{
+					"key": "libc6_2.41-12-p-deb13u1_arm64",
+					"name": "libc6",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libgcc-s1_14.2.0-19_arm64",
+					"name": "libgcc-s1",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "gcc-14-base_14.2.0-19_arm64",
+					"name": "gcc-14-base",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "guile-3.0-libs_3.0.10-p-really3.0.10-4_arm64",
+					"name": "guile-3.0-libs",
+					"version": "3.0.10+really3.0.10-4"
+				},
+				{
+					"key": "libunistring5_1.3-2_arm64",
+					"name": "libunistring5",
+					"version": "1.3-2"
+				},
+				{
+					"key": "libreadline8t64_8.2-6_arm64",
+					"name": "libreadline8t64",
+					"version": "8.2-6"
+				},
+				{
+					"key": "libtinfo6_6.5-p-20250216-2_arm64",
+					"name": "libtinfo6",
+					"version": "6.5+20250216-2"
+				},
+				{
+					"key": "readline-common_8.2-6_arm64",
+					"name": "readline-common",
+					"version": "8.2-6"
+				},
+				{
+					"key": "libgmp10_2-6.3.0-p-dfsg-3_arm64",
+					"name": "libgmp10",
+					"version": "2:6.3.0+dfsg-3"
+				},
+				{
+					"key": "libgc1_1-8.2.8-1_arm64",
+					"name": "libgc1",
+					"version": "1:8.2.8-1"
+				},
+				{
+					"key": "libstdc-p--p-6_14.2.0-19_arm64",
+					"name": "libstdc++6",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "libffi8_3.4.8-2_arm64",
+					"name": "libffi8",
+					"version": "3.4.8-2"
+				},
+				{
+					"key": "libcrypt1_1-4.4.38-1_arm64",
+					"name": "libcrypt1",
+					"version": "1:4.4.38-1"
+				}
+			],
+			"key": "make-guile_4.4.1-2_arm64",
+			"name": "make-guile",
+			"sha256": "e44a295976890879faf15a885764da2b8f05ed06b1ce577a0d8fb64c825f8d2d",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/m/make-dfsg/make-guile_4.4.1-2_arm64.deb"
+			],
+			"version": "4.4.1-2"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "guile-3.0-libs_3.0.10-p-really3.0.10-4_arm64",
+			"name": "guile-3.0-libs",
+			"sha256": "f13513a00f1d328fe03ed020c3ebbcb92307c60a145dd63b64ee81842a31b7e2",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/g/guile-3.0/guile-3.0-libs_3.0.10+really3.0.10-4_arm64.deb"
+			],
+			"version": "3.0.10+really3.0.10-4"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "libreadline8t64_8.2-6_arm64",
+			"name": "libreadline8t64",
+			"sha256": "f78ff432b2a627bc04f7eef0e6e2696501c9e06feca748a5b741d5e594429033",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/readline/libreadline8t64_8.2-6_arm64.deb"
+			],
+			"version": "8.2-6"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "readline-common_8.2-6_arm64",
+			"name": "readline-common",
+			"sha256": "f77e8aa0bf0de618f11cb0b21658a4ed60f177d63b3cf26d7fc3706b6d0eaaa9",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/r/readline/readline-common_8.2-6_all.deb"
+			],
+			"version": "8.2-6"
 		},
 		{
 			"arch": "arm64",
@@ -2328,6 +2634,38 @@
 				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/o/openssl/libssl-dev_3.5.4-1~deb13u1_arm64.deb"
 			],
 			"version": "3.5.4-1~deb13u1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [
+				{
+					"key": "liblzma5_5.8.1-1_arm64",
+					"name": "liblzma5",
+					"version": "5.8.1-1"
+				},
+				{
+					"key": "libc6_2.41-12-p-deb13u1_arm64",
+					"name": "libc6",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libgcc-s1_14.2.0-19_arm64",
+					"name": "libgcc-s1",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "gcc-14-base_14.2.0-19_arm64",
+					"name": "gcc-14-base",
+					"version": "14.2.0-19"
+				}
+			],
+			"key": "xz-utils_5.8.1-1_arm64",
+			"name": "xz-utils",
+			"sha256": "8967d05fee233800d915221d78fcc3905dececb420d0f704d2255632c5083f59",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/x/xz-utils/xz-utils_5.8.1-1_arm64.deb"
+			],
+			"version": "5.8.1-1"
 		},
 		{
 			"arch": "arm64",
@@ -2909,6 +3247,17 @@
 		},
 		{
 			"arch": "arm64",
+			"dependencies": [],
+			"key": "libmpfr6_4.2.2-1_arm64",
+			"name": "libmpfr6",
+			"sha256": "628a4ef58cc6815880f72e9d3953984a379a017e4042bc575f1fcbf3954d79ac",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/m/mpfr4/libmpfr6_4.2.2-1_arm64.deb"
+			],
+			"version": "4.2.2-1"
+		},
+		{
+			"arch": "arm64",
 			"dependencies": [
 				{
 					"key": "libc6_2.41-12-p-deb13u1_arm64",
@@ -2933,6 +3282,33 @@
 				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/diffutils/diffutils_3.10-4_arm64.deb"
 			],
 			"version": "1:3.10-4"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [
+				{
+					"key": "libc6_2.41-12-p-deb13u1_arm64",
+					"name": "libc6",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libgcc-s1_14.2.0-19_arm64",
+					"name": "libgcc-s1",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "gcc-14-base_14.2.0-19_arm64",
+					"name": "gcc-14-base",
+					"version": "14.2.0-19"
+				}
+			],
+			"key": "patch_2.8-2_arm64",
+			"name": "patch",
+			"sha256": "182ad723623dcd02dfe5054f3515a26d8bf4a9cce717f03e3e514c02cb9e59e8",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/patch/patch_2.8-2_arm64.deb"
+			],
+			"version": "2.8-2"
 		},
 		{
 			"arch": "arm64",
@@ -3152,6 +3528,17 @@
 		{
 			"arch": "arm64",
 			"dependencies": [],
+			"key": "libbz2-1.0_1.0.8-6_arm64",
+			"name": "libbz2-1.0",
+			"sha256": "3537fe4fc577a60c8a9568873cd577db7ebc135eb8bb1825f18caf8972d9d2f2",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/b/bzip2/libbz2-1.0_1.0.8-6_arm64.deb"
+			],
+			"version": "1.0.8-6"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
 			"key": "tzdata_2025b-4-p-deb13u1_arm64",
 			"name": "tzdata",
 			"sha256": "19a87f5184503fb5eeffe97bd7e107e193ac28107789a1e85331ed9381040f17",
@@ -3236,6 +3623,60 @@
 				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/python3-defaults/python3-minimal_3.13.5-1_arm64.deb"
 			],
 			"version": "3.13.5-1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "dpkg_1.22.21_arm64",
+			"name": "dpkg",
+			"sha256": "e6d4c5b6dd41aaa427846e2506cfb9f27cf48f090208f00bb574ece4dcd31796",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/d/dpkg/dpkg_1.22.21_arm64.deb"
+			],
+			"version": "1.22.21"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [],
+			"key": "tar_1.35-p-dfsg-3.1_arm64",
+			"name": "tar",
+			"sha256": "c460a8294202ca3802b7c703b0bd70dd8bda1f2fc8785839595cf9d5e060d71b",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/t/tar/tar_1.35+dfsg-3.1_arm64.deb"
+			],
+			"version": "1.35+dfsg-3.1"
+		},
+		{
+			"arch": "arm64",
+			"dependencies": [
+				{
+					"key": "libcrypt1_1-4.4.38-1_arm64",
+					"name": "libcrypt1",
+					"version": "1:4.4.38-1"
+				},
+				{
+					"key": "libc6_2.41-12-p-deb13u1_arm64",
+					"name": "libc6",
+					"version": "2.41-12+deb13u1"
+				},
+				{
+					"key": "libgcc-s1_14.2.0-19_arm64",
+					"name": "libgcc-s1",
+					"version": "14.2.0-19"
+				},
+				{
+					"key": "gcc-14-base_14.2.0-19_arm64",
+					"name": "gcc-14-base",
+					"version": "14.2.0-19"
+				}
+			],
+			"key": "perl-base_5.40.1-6_arm64",
+			"name": "perl-base",
+			"sha256": "65eef1a545207309b9ce87139be81be9dd12f24b0bd12be935cb36e51bdb6f2d",
+			"urls": [
+				"https://snapshot.debian.org/archive/debian/20260311T203443Z/pool/main/p/perl/perl-base_5.40.1-6_arm64.deb"
+			],
+			"version": "5.40.1-6"
 		}
 	],
 	"version": 1

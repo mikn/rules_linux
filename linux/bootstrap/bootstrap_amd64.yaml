@@ -1,8 +1,8 @@
 # Bootstrap rootfs for the kernel_build VM path (x86_64 / amd64).
 #
-# Provides the compiler toolchain (gcc, make, flex, bison, etc.) needed to
-# build a Linux kernel inside a QEMU guest, plus the bootstrap kernel image
-# used to boot that guest.
+# Provides the LLVM/clang toolchain (clang, lld, llvm, flex, bison, etc.)
+# needed to build a Linux kernel inside a QEMU guest, plus the bootstrap
+# kernel image used to boot that guest.
 #
 # No systemd — the VM uses a minimal init script that starts the vmtest agent
 # directly, which handles all RPC communication with the host vmbuilder.
@@ -22,8 +22,11 @@ packages:
   # Bootstrap kernel (to boot the builder VM)
   - linux-image-amd64
 
-  # Kernel build toolchain
-  - build-essential
+  # LLVM kernel build toolchain (make LLVM=1)
+  - clang
+  - lld
+  - llvm
+  - make
   - flex
   - bison
   - bc

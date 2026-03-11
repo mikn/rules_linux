@@ -261,7 +261,7 @@ func run() error {
 		targets += " modules"
 	}
 	buildCmd := fmt.Sprintf(
-		"make -C /build ARCH=%s -j%d %s 2>&1",
+		"make -C /build ARCH=%s LLVM=1 -j%d %s 2>&1",
 		karch, jobs, targets,
 	)
 	buildTimeoutSecs := int(*flagBuildTimeout / time.Second)
@@ -289,7 +289,7 @@ func run() error {
 			struct {
 				cmd     string
 				timeout int
-			}{fmt.Sprintf("make -C /build ARCH=%s modules_install INSTALL_MOD_PATH=/mnt/output/modules 2>&1", karch), 300},
+			}{fmt.Sprintf("make -C /build ARCH=%s LLVM=1 modules_install INSTALL_MOD_PATH=/mnt/output/modules 2>&1", karch), 300},
 			struct {
 				cmd     string
 				timeout int
@@ -377,7 +377,7 @@ func configureKernel(ctx context.Context, agent *vm.AgentConn, arch, defconfig s
 
 	if defconfig != "" {
 		// Generate config from defconfig target.
-		cmd := fmt.Sprintf("make -C /build ARCH=%s %s 2>&1", karch, defconfig)
+		cmd := fmt.Sprintf("make -C /build ARCH=%s LLVM=1 %s 2>&1", karch, defconfig)
 		if err := execGuest(ctx, agent, cmd, 120); err != nil {
 			return fmt.Errorf("make %s: %w", defconfig, err)
 		}
@@ -398,7 +398,7 @@ func configureKernel(ctx context.Context, agent *vm.AgentConn, arch, defconfig s
 	}
 
 	// Resolve the config — handles conflicts and new symbols deterministically.
-	resolveCmd := fmt.Sprintf("make -C /build ARCH=%s olddefconfig 2>&1", karch)
+	resolveCmd := fmt.Sprintf("make -C /build ARCH=%s LLVM=1 olddefconfig 2>&1", karch)
 	if err := execGuest(ctx, agent, resolveCmd, 120); err != nil {
 		return fmt.Errorf("olddefconfig: %w", err)
 	}
