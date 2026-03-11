@@ -23,7 +23,7 @@ def _sign_image_impl(ctx):
         script = ctx.actions.declare_file(ctx.label.name + "_sign.sh")
         script_content = """#!/bin/bash
 set -euo pipefail
-$(realpath {sops}) exec-env {sops_env_yaml} "$(realpath {signer}) -input {usi} -output {output} {cert_args} -key-env {key_env_var}"
+"$PWD/{sops}" exec-env {sops_env_yaml} "$PWD/{signer} -input {usi} -output {output} {cert_args} -key-env {key_env_var}"
 """.format(
             sops = ctx.executable.sops.path,
             sops_env_yaml = ctx.file.sops_env_yaml.path,

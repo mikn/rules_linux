@@ -11,6 +11,7 @@ bazel_dep(name = "rules_pkg", version = "1.2.0")
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "gazelle", version = "0.47.0")
 bazel_dep(name = "rules_distroless", version = "0.6.2")
+bazel_dep(name = "ape", version = "1.1.0")
 
 # Kernel build toolchains (CC toolchain provided by consumer's registered toolchain)
 bazel_dep(name = "rules_flex", version = "0.4")

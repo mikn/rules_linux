@@ -6,6 +6,56 @@ load("//linux/uki:uki.bzl", "uki_image")
 load("//linux/signing:signing.bzl", "sign_image")
 load("//linux/iso:iso.bzl", "iso_image")
 
+_TAR_TOOLCHAIN_TYPE = "@aspect_bazel_lib//lib:tar_toolchain_type"
+
+def _tar_extract_impl(ctx):
+    """Extract a single file from a tar archive using hermetic bsdtar."""
+    bsdtar = ctx.toolchains[_TAR_TOOLCHAIN_TYPE]
+    src = ctx.file.src
+    output = ctx.actions.declare_file(ctx.label.name + ctx.attr.out_ext)
+
+    ctx.actions.run_shell(
+        inputs = depset(direct = [src], transitive = [bsdtar.default.files]),
+        outputs = [output],
+        command = """
+            set -e
+            "{bsdtar}" -xf {src} --include='{pattern}' -O > {output} 2>/dev/null || {{
+                echo "ERROR: Pattern '{pattern}' not found in archive" >&2
+                exit 1
+            }}
+        """.format(
+            bsdtar = bsdtar.tarinfo.binary.path,
+            src = src.path,
+            pattern = ctx.attr.pattern,
+            output = output.path,
+        ),
+        mnemonic = "TarExtract",
+        progress_message = "Extracting %s from archive" % ctx.attr.pattern,
+    )
+
+    return [DefaultInfo(files = depset([output]))]
+
+_tar_extract = rule(
+    implementation = _tar_extract_impl,
+    attrs = {
+        "src": attr.label(
+            mandatory = True,
+            allow_single_file = True,
+            doc = "Source tar archive",
+        ),
+        "pattern": attr.string(
+            mandatory = True,
+            doc = "Include pattern for bsdtar extraction (e.g., './boot/vmlinuz-*')",
+        ),
+        "out_ext": attr.string(
+            mandatory = True,
+            doc = "Output file extension (e.g., '.vmlinuz', '.stub')",
+        ),
+    },
+    toolchains = [_TAR_TOOLCHAIN_TYPE],
+    doc = "Extract a single file matching a pattern from a tar archive using hermetic bsdtar.",
+)
+
 def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
               kernel_package = None, systemd_boot_package = None,
               arch = "x86_64", strip_profile = None, extra_excludes = [],
@@ -37,33 +87,21 @@ def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
     else:
         fail("Unsupported architecture: {}. Use x86_64 or arm64.".format(arch))
 
-    # Extract kernel
-    native.genrule(
+    # Extract kernel using hermetic bsdtar
+    _tar_extract(
         name = name + "_kernel",
-        srcs = [kernel_package],
-        outs = [name + ".vmlinuz"],
-        cmd = """
-            set -e
-            tar -xf $(SRCS) --wildcards './boot/vmlinuz-*' -O > $@ 2>/dev/null || {
-                echo "ERROR: Kernel not found in package" >&2
-                exit 1
-            }
-        """,
+        src = kernel_package,
+        pattern = "./boot/vmlinuz-*",
+        out_ext = ".vmlinuz",
         visibility = ["//visibility:private"],
     )
 
-    # Extract stub
-    native.genrule(
+    # Extract stub using hermetic bsdtar
+    _tar_extract(
         name = name + "_stub",
-        srcs = [systemd_boot_package],
-        outs = [name + ".stub"],
-        cmd = """
-            set -e
-            tar -xf $(SRCS) --wildcards '%s' -O > $@ 2>/dev/null || {
-                echo "ERROR: Stub not found in package" >&2
-                exit 1
-            }
-        """ % stub_pattern,
+        src = systemd_boot_package,
+        pattern = stub_pattern,
+        out_ext = ".stub",
         visibility = ["//visibility:private"],
     )
 

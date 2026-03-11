@@ -1,6 +1,6 @@
 """Rule for building a Linux kernel from source using Bazel-managed toolchains.
 
-Uses hermetic toolchains for: LLVM (CC), flex, bison, python3, perl, make.
+Uses hermetic toolchains for: LLVM (CC), flex, bison, python3, perl, make, bsdtar, nproc.
 Host dependency: bc (no BCR module available).
 """
 
@@ -12,6 +12,7 @@ _BISON_TOOLCHAIN_TYPE = "@rules_bison//bison:toolchain_type"
 _PYTHON_TOOLCHAIN_TYPE = "@rules_python//python:toolchain_type"
 _PERL_TOOLCHAIN_TYPE = "@rules_perl//perl:toolchain_type"
 _MAKE_TOOLCHAIN_TYPE = "@rules_foreign_cc//toolchains:make_toolchain"
+_TAR_TOOLCHAIN_TYPE = "@aspect_bazel_lib//lib:tar_toolchain_type"
 
 def _find_file_in_depset(files, basename):
     """Find a file by name in a depset."""
@@ -55,7 +56,9 @@ def _kernel_build_impl(ctx):
     modules_tar = ctx.actions.declare_file(ctx.label.name + ".modules.tar")
     dot_config = ctx.actions.declare_file(ctx.label.name + ".config")
 
-    jobs = str(ctx.attr.make_jobs) if ctx.attr.make_jobs > 0 else "$(nproc)"
+    # Hermetic nproc from @ape cosmos binaries (works on Linux and macOS).
+    nproc_tool = ctx.executable._nproc
+    jobs = str(ctx.attr.make_jobs) if ctx.attr.make_jobs > 0 else "$($NPROC)"
 
     # === Resolve all toolchains ===
 
@@ -90,6 +93,10 @@ def _kernel_build_impl(ctx):
     make_data = make_toolchain.data
     make_tool_target = make_data.target
     make_path = make_data.path
+
+    # bsdtar (hermetic tar from aspect_bazel_lib)
+    bsdtar = ctx.toolchains[_TAR_TOOLCHAIN_TYPE]
+    bsdtar_path = bsdtar.tarinfo.binary.path
 
     # === Build environment setup for flex/bison internal deps ===
 
@@ -130,7 +137,10 @@ def _kernel_build_impl(ctx):
     if perl_bin_dir:
         path_dirs.append("$EXECROOT/" + perl_bin_dir)
 
-    path_setup = ":".join(path_dirs) + ":$PATH" if path_dirs else "$PATH"
+    # Construct PATH from hermetic toolchain dirs only — no host $PATH fallback.
+    # /usr/bin is included for POSIX builtins (cp, rm, mkdir, etc.) and bc
+    # (no BCR module available).
+    path_setup = ":".join(path_dirs + ["/usr/bin"]) if path_dirs else "/usr/bin"
 
     # === Resolve make path ===
     # rules_foreign_cc make toolchain provides either a built make (target != None)
@@ -165,9 +175,10 @@ export PATH="$CCACHE_LINKS:$PATH"
         cc_toolchain.all_files,
         flex_info.all_files,
         bison_info.all_files,
+        bsdtar.default.files,
     ]
 
-    direct_tools = [flex_executable, bison_executable]
+    direct_tools = [flex_executable, bison_executable, nproc_tool]
 
     if py_interpreter:
         direct_tools.append(py_interpreter)
@@ -227,7 +238,7 @@ while IFS= read -r line || [ -n "$line" ]; do
         CONFIG_*=y) opt="${{line%%=*}}"; "$SRCDIR/scripts/config" --file "$SRCDIR/.config" --enable "$opt" ;;
         CONFIG_*=m) opt="${{line%%=*}}"; "$SRCDIR/scripts/config" --file "$SRCDIR/.config" --module "$opt" ;;
         CONFIG_*=*) opt="${{line%%=*}}"; val="${{line#*=}}"; "$SRCDIR/scripts/config" --file "$SRCDIR/.config" --set-val "$opt" "$val" ;;
-        "# CONFIG_"*) opt=$(echo "$line" | sed 's/# \\(CONFIG_[^ ]*\\) is not set/\\1/'); "$SRCDIR/scripts/config" --file "$SRCDIR/.config" --disable "$opt" ;;
+        "# CONFIG_"*) opt="${{line#\\# }}"; opt="${{opt%% *}}"; "$SRCDIR/scripts/config" --file "$SRCDIR/.config" --disable "$opt" ;;
     esac
 done < "{frag}" """.format(frag = frag.path))
             inputs.append(frag)
@@ -252,11 +263,13 @@ set -euo pipefail
 EXECROOT=$(pwd)
 export PATH="{path_setup}"
 {toolchain_env_setup}
+BSDTAR="$EXECROOT/{bsdtar}"
+NPROC="$EXECROOT/{nproc}"
 
 SRCDIR=$(mktemp -d)
 
-# Extract source
-tar -xf {source} -C "$SRCDIR" --strip-components=1
+# Extract source using hermetic bsdtar
+"$BSDTAR" -xf {source} -C "$SRCDIR" --strip-components=1
 
 {ccache_setup}
 
@@ -274,13 +287,15 @@ cp "$SRCDIR/.config" {dot_config}
 # Install and tar modules
 MODDIR=$(mktemp -d)
 {make} -C "$SRCDIR" LLVM=1 ARCH={karch} modules_install INSTALL_MOD_PATH="$MODDIR" > /dev/null 2>&1
-tar -cf {modules_tar} -C "$MODDIR" .
+"$BSDTAR" -cf {modules_tar} -C "$MODDIR" .
 
 # Cleanup
 rm -rf "$SRCDIR" "$MODDIR"
 """.format(
         path_setup = path_setup,
         toolchain_env_setup = toolchain_env_setup,
+        bsdtar = bsdtar_path,
+        nproc = nproc_tool.path,
         source = source_tarball.path,
         ccache_setup = ccache_setup,
         config_setup = config_setup,
@@ -307,7 +322,7 @@ rm -rf "$SRCDIR" "$MODDIR"
         mnemonic = "KernelBuild",
         progress_message = "Building Linux kernel %s (%s)" % (ctx.attr.version, arch),
         execution_requirements = execution_requirements,
-        use_default_shell_env = True,
+        use_default_shell_env = False,
     )
 
     return [
@@ -374,6 +389,11 @@ Point at @ccache//:ccache from the ccache extension. Requires both
             default = "/tmp/bazel-ccache",
             doc = "Directory for ccache storage. Must match sandbox mount pair and writable path in .bazelrc.",
         ),
+        "_nproc": attr.label(
+            default = "@ape//ape:nproc",
+            executable = True,
+            cfg = "exec",
+        ),
     },
     toolchains = use_cpp_toolchain() + [
         _FLEX_TOOLCHAIN_TYPE,
@@ -381,10 +401,11 @@ Point at @ccache//:ccache from the ccache extension. Requires both
         _PYTHON_TOOLCHAIN_TYPE,
         _PERL_TOOLCHAIN_TYPE,
         _MAKE_TOOLCHAIN_TYPE,
+        _TAR_TOOLCHAIN_TYPE,
     ],
     doc = """Build a Linux kernel from source.
 
-Uses Bazel-managed toolchains: LLVM (CC), flex, bison, python3, perl, make.
+Uses Bazel-managed toolchains: LLVM (CC), flex, bison, python3, perl, make, bsdtar, nproc.
 Host dependency: bc (no BCR module available).
 
 Produces LinuxKernelInfo provider (same as kernel_extract).

@@ -2,6 +2,8 @@
 
 load("//linux:providers.bzl", "LinuxKernelInfo")
 
+_TAR_TOOLCHAIN_TYPE = "@aspect_bazel_lib//lib:tar_toolchain_type"
+
 def _kernel_extract_impl(ctx):
     """Extract kernel from a Debian package data archive."""
     data_tar = ctx.file.package
@@ -18,20 +20,29 @@ def _kernel_extract_impl(ctx):
     else:
         fail("Unsupported architecture: {}. Use x86_64 or arm64.".format(arch))
 
+    # Hermetic bsdtar from aspect_bazel_lib
+    bsdtar = ctx.toolchains[_TAR_TOOLCHAIN_TYPE]
+    bsdtar_path = bsdtar.tarinfo.binary.path
+    bsdtar_inputs = bsdtar.default.files
+
     vmlinuz = ctx.actions.declare_file(ctx.label.name + ".vmlinuz")
 
     ctx.actions.run_shell(
-        inputs = [data_tar],
+        inputs = depset(direct = [data_tar], transitive = [bsdtar_inputs]),
         outputs = [vmlinuz],
         command = """
             set -e
-            tar -xf {data_tar} --wildcards '{pattern}' -O > {output} 2>/dev/null || {{
+            BSDTAR="{bsdtar}"
+            "$BSDTAR" -xf {data_tar} --include='{pattern}' -O > {output} 2>/dev/null || {{
                 echo "ERROR: Pattern '{pattern}' not found in package" >&2
                 echo "Package contents:" >&2
-                tar -tf {data_tar} | grep -E "(vmlinuz|\\.efi)" | head -20 >&2
+                "$BSDTAR" -tf {data_tar} 2>&1 | while IFS= read -r line; do
+                    case "$line" in *vmlinuz*|*.efi*) echo "$line" >&2 ;; esac
+                done
                 exit 1
             }}
         """.format(
+            bsdtar = bsdtar_path,
             data_tar = data_tar.path,
             pattern = kernel_pattern,
             output = vmlinuz.path,
@@ -45,19 +56,23 @@ def _kernel_extract_impl(ctx):
     if ctx.file.modules_package:
         modules_tar = ctx.actions.declare_file(ctx.label.name + ".modules.tar")
         ctx.actions.run_shell(
-            inputs = [ctx.file.modules_package],
+            inputs = depset(direct = [ctx.file.modules_package], transitive = [bsdtar_inputs]),
             outputs = [modules_tar],
             command = """
                 set -e
+                BSDTAR="{bsdtar}"
                 TMPDIR=$(mktemp -d)
-                tar -xf {data_tar} -C "$TMPDIR" './lib/modules/' 2>/dev/null || {{
+                "$BSDTAR" -xf {data_tar} -C "$TMPDIR" --include='./lib/modules/*' 2>/dev/null || {{
                     echo "ERROR: No modules found in package" >&2
-                    tar -tf {data_tar} | head -20 >&2
+                    n=0; "$BSDTAR" -tf {data_tar} 2>&1 | while IFS= read -r line; do
+                        echo "$line" >&2; n=$((n+1)); [ "$n" -ge 20 ] && break
+                    done
                     exit 1
                 }}
-                tar -cf {output} -C "$TMPDIR" .
+                "$BSDTAR" -cf {output} -C "$TMPDIR" .
                 rm -rf "$TMPDIR"
             """.format(
+                bsdtar = bsdtar_path,
                 data_tar = ctx.file.modules_package.path,
                 output = modules_tar.path,
             ),
@@ -103,5 +118,6 @@ kernel_extract = rule(
             doc = "Target architecture. Use x86_64 or arm64. amd64 is accepted as a legacy alias for x86_64.",
         ),
     },
+    toolchains = [_TAR_TOOLCHAIN_TYPE],
     doc = "Extract a Linux kernel (and optionally modules) from Debian package data archives.",
 )
