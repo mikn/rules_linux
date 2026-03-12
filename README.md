@@ -152,7 +152,90 @@ iso_image(
 )
 ```
 
-## Macros
+## Rootfs Assembly
+
+Macros for ergonomic rootfs composition, exported from `@rules_linux//linux:defs.bzl`.
+
+### `systemd_service`
+
+Installs a systemd service with its binary. Replaces the common 3-target `pkg_tar` pattern (binary tar + service file tar + enable symlink).
+
+```starlark
+load("@rules_linux//linux:defs.bzl", "systemd_service")
+
+systemd_service(
+    name = "myapp_service",
+    binary = ":myapp",
+    service_file = "myapp.service",
+    # enabled = True (default), creates multi-user.target.wants symlink
+    # wanted_by = "multi-user.target" (default)
+    # binary_dest = "/usr/lib/myapp_service" (default: /usr/lib/<name>)
+)
+```
+
+For services without a binary (e.g., using a binary from another package):
+
+```starlark
+systemd_service(
+    name = "myapp_config",
+    service_file = "myapp-config.service",
+    wanted_by = "network.target",
+)
+```
+
+For `.wants` dependencies between services:
+
+```starlark
+systemd_service(
+    name = "gobgpd_service",
+    binary = ":gobgpd",
+    service_file = "gobgpd.service",
+    extra_symlinks = {
+        "/etc/systemd/system/gobgpd.service.wants/zebra.service": "/usr/lib/systemd/system/zebra.service",
+    },
+)
+```
+
+### `install_files`
+
+Groups files by destination directory and mode into `pkg_tar` layers.
+
+```starlark
+load("@rules_linux//linux:defs.bzl", "install_files")
+
+install_files(
+    name = "app_files",
+    files = [
+        {"srcs": [":myapp"], "dest": "/usr/bin", "mode": "0755"},
+        {"srcs": ["app.conf"], "dest": "/etc/myapp", "mode": "0644"},
+        {"srcs": ["tmpfiles.conf"], "dest": "/usr/lib/tmpfiles.d", "mode": "0644"},
+    ],
+)
+```
+
+### `rootfs`
+
+Composes a complete rootfs from a base image, services, files, and extra layers.
+
+```starlark
+load("@rules_linux//linux:defs.bzl", "rootfs")
+
+rootfs(
+    name = "my_rootfs",
+    base = "@my_debian//:flat",
+    services = [
+        ":myapp_service",
+        ":gobgpd_service",
+    ],
+    files = [
+        {"srcs": [":netmgr"], "dest": "/usr/bin", "mode": "0755"},
+        {"srcs": ["gobgp.conf"], "dest": "/usr/lib/tmpfiles.d", "mode": "0644"},
+    ],
+    extra_tars = [":boot_layer"],
+)
+```
+
+## Image Macros
 
 High-level macros are in `@rules_linux//linux:macros.bzl`:
 
@@ -185,7 +268,34 @@ kernel_sources.source(
 use_repo(kernel_sources, "linux_6_12")
 ```
 
-### ccache extension
+### `packages` — Debian packages
+
+Wraps `rules_distroless` to install Debian packages without manually maintaining YAML manifest files.
+
+```starlark
+# MODULE.bazel
+packages = use_extension("@rules_linux//linux:extensions.bzl", "packages")
+packages.debian(
+    name = "my_debian",
+    packages = ["nginx", "curl", "ca-certificates"],
+    arch = "amd64",
+    snapshot = "20250101T000000Z",
+    lock = "//:my_debian.lock.json",
+)
+use_repo(packages, "my_debian")
+```
+
+Then use `@my_debian//:flat` as a base rootfs tar, or access individual packages like `@my_debian//nginx/amd64:data`.
+
+To generate or update the lock file:
+
+```sh
+bazel run @my_debian_resolve//:lock
+```
+
+Options: `distro` (default `"bookworm"`), `components` (default `["main"]`).
+
+### `ccache`
 
 The ccache extension auto-detects the host platform by default. Supported platforms: `linux-x86_64`, `linux-aarch64`, `darwin` (universal binary covering Intel and Apple Silicon).
 
