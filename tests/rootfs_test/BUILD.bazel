@@ -135,6 +135,60 @@ build_test(
     targets = [":test_rootfs_inline"],
 )
 
+# --- Test: install_files with symlinks only ---
+
+install_files(
+    name = "test_install_symlinks_only",
+    files = [
+        {
+            "symlinks": {
+                "/usr/sbin/zebra": "/usr/lib/frr/zebra",
+                "/etc/systemd/system/multi-user.target.wants/foo.service": "/lib/systemd/system/foo.service",
+            },
+        },
+    ],
+)
+
+build_test(
+    name = "install_files_symlinks_only_test",
+    targets = [":test_install_symlinks_only"],
+)
+
+# --- Test: install_files with empty_dirs ---
+
+install_files(
+    name = "test_install_empty_dirs",
+    files = [
+        {"empty_dirs": ["/etc/systemd/network", "/var/lib/myapp"]},
+    ],
+)
+
+build_test(
+    name = "install_files_empty_dirs_test",
+    targets = [":test_install_empty_dirs"],
+)
+
+# --- Test: install_files with dest + symlinks (split behavior) ---
+
+install_files(
+    name = "test_install_dest_and_symlinks",
+    files = [
+        {
+            "srcs": [":fake_config"],
+            "dest": "/etc/myapp",
+            "mode": "0644",
+            "symlinks": {
+                "/usr/sbin/myapp": "/usr/lib/myapp/bin",
+            },
+        },
+    ],
+)
+
+build_test(
+    name = "install_files_dest_and_symlinks_test",
+    targets = [":test_install_dest_and_symlinks"],
+)
+
 # --- Test: rootfs without base ---
 
 rootfs(

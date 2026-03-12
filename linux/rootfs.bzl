@@ -30,7 +30,13 @@ def systemd_service(name, service_file, binary = None, enabled = True,
         visibility: Bazel visibility.
         **kwargs: Additional arguments passed to the final pkg_tar.
     """
-    service_name = service_file.rsplit("/", 1)[-1] if "/" in service_file else service_file
+    # Handle both file paths (files/foo.service) and labels (//pkg:foo.service)
+    if ":" in service_file:
+        service_name = service_file.rsplit(":", 1)[-1]
+    elif "/" in service_file:
+        service_name = service_file.rsplit("/", 1)[-1]
+    else:
+        service_name = service_file
     service_path = "/usr/lib/systemd/system/" + service_name
 
     # Build symlinks for service enablement
@@ -51,10 +57,18 @@ def systemd_service(name, service_file, binary = None, enabled = True,
         srcs = [service_file],
         mode = "0644",
         package_dir = "/usr/lib/systemd/system",
-        symlinks = symlinks if symlinks else {},
         visibility = ["//visibility:private"],
     )
     dep_targets.append(":" + name + "_service")
+
+    # Symlinks tar (separate from service file to avoid package_dir nesting)
+    if symlinks:
+        pkg_tar(
+            name = name + "_symlinks",
+            symlinks = symlinks,
+            visibility = ["//visibility:private"],
+        )
+        dep_targets.append(":" + name + "_symlinks")
 
     # Binary tar (optional)
     if binary != None:
@@ -89,7 +103,8 @@ def install_files(name, files, visibility = None, **kwargs):
             - dest: Destination directory path (e.g., "/usr/bin").
             - mode: Optional file mode (default: "0755" for dirs like
               /usr/bin, /usr/sbin; "0644" for others).
-            - symlinks: Optional dict of symlinks to create.
+            - symlinks: Optional dict of symlinks to create (absolute paths).
+            - empty_dirs: Optional list of empty directories to create.
         visibility: Bazel visibility.
         **kwargs: Additional arguments passed to the final pkg_tar.
     """
@@ -97,20 +112,49 @@ def install_files(name, files, visibility = None, **kwargs):
 
     for i, entry in enumerate(files):
         srcs = entry.get("srcs", [])
-        dest = entry["dest"]
+        dest = entry.get("dest", "")
         mode = entry.get("mode", "0644")
         symlinks = entry.get("symlinks", {})
+        empty_dirs = entry.get("empty_dirs", [])
 
         sub_name = name + "_" + str(i)
-        pkg_tar(
-            name = sub_name,
-            srcs = srcs,
-            package_dir = dest,
-            mode = mode,
-            symlinks = symlinks if symlinks else {},
-            visibility = ["//visibility:private"],
-        )
-        dep_targets.append(":" + sub_name)
+
+        # When both dest (package_dir) and symlinks are present, split into
+        # two targets to prevent symlinks from being nested under package_dir.
+        if dest and symlinks:
+            file_kwargs = {"visibility": ["//visibility:private"]}
+            if srcs:
+                file_kwargs["srcs"] = srcs
+            file_kwargs["package_dir"] = dest
+            file_kwargs["mode"] = mode
+            if empty_dirs:
+                file_kwargs["empty_dirs"] = empty_dirs
+            pkg_tar(name = sub_name + "_files", **file_kwargs)
+            dep_targets.append(":" + sub_name + "_files")
+
+            pkg_tar(
+                name = sub_name + "_symlinks",
+                symlinks = symlinks,
+                visibility = ["//visibility:private"],
+            )
+            dep_targets.append(":" + sub_name + "_symlinks")
+        else:
+            tar_kwargs = {"visibility": ["//visibility:private"]}
+            if srcs:
+                tar_kwargs["srcs"] = srcs
+            if dest:
+                tar_kwargs["package_dir"] = dest
+                tar_kwargs["mode"] = mode
+            if symlinks:
+                tar_kwargs["symlinks"] = symlinks
+            if empty_dirs:
+                tar_kwargs["empty_dirs"] = empty_dirs
+
+            pkg_tar(
+                name = sub_name,
+                **tar_kwargs
+            )
+            dep_targets.append(":" + sub_name)
 
     pkg_tar(
         name = name,
