@@ -1,0 +1,6 @@
+# install_files with both dest and symlinks — symlinks must NOT be nested under dest
+file etc/myapp/test.conf
+mode etc/myapp/test.conf 0644
+# Symlink must be at absolute path, NOT at etc/myapp/usr/sbin/myapp
+symlink usr/sbin/myapp /usr/lib/myapp/bin
+!file etc/myapp/usr/sbin/myapp

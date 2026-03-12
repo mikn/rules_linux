@@ -1,0 +1,7 @@
+# systemd_service with custom wanted_by and binary_dest
+file usr/lib/systemd/system/test-app.service
+symlink etc/systemd/system/network.target.wants/test-app.service /usr/lib/systemd/system/test-app.service
+# Binary at custom destination
+file usr/sbin/test-app
+# Should NOT have multi-user.target.wants symlink
+!file etc/systemd/system/multi-user.target.wants/test-app.service

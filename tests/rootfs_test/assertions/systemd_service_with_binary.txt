@@ -1,0 +1,5 @@
+# systemd_service with binary: service file + enable symlink + binary
+file usr/lib/systemd/system/test-app.service
+mode usr/lib/systemd/system/test-app.service 0644
+symlink etc/systemd/system/multi-user.target.wants/test-app.service /usr/lib/systemd/system/test-app.service
+file usr/lib/test_app_service/test-app

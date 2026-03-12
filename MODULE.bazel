@@ -11,6 +11,7 @@ bazel_dep(name = "rules_pkg", version = "1.2.0")
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "gazelle", version = "0.47.0")
 bazel_dep(name = "rules_distroless", version = "0.6.2")
+bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "ape", version = "1.1.0")
 
 # QEMU toolchain for macOS kernel build via VM harness

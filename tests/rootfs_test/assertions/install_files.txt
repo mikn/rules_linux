@@ -1,0 +1,5 @@
+# install_files: binary at /usr/bin, config at /etc/myapp
+file usr/bin/test-app
+mode usr/bin/test-app 0755
+file etc/myapp/test.conf
+mode etc/myapp/test.conf 0644

@@ -1,0 +1,5 @@
+# install_files with symlinks only (no files, no dest)
+symlink usr/sbin/zebra /usr/lib/frr/zebra
+symlink etc/systemd/system/multi-user.target.wants/foo.service /lib/systemd/system/foo.service
+# Symlinks should be at root-level paths, NOT nested under a package_dir
+!file usr/lib

@@ -1,0 +1,4 @@
+# systemd_service disabled: service file only, no enable symlinks
+file usr/lib/systemd/system/test-app.service
+# Should NOT have any wants symlinks
+!file etc/systemd/system/multi-user.target.wants/test-app.service

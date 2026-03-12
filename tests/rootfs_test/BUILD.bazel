@@ -1,6 +1,7 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//linux:defs.bzl", "install_files", "rootfs", "systemd_service")
+load(":verify.bzl", "verify_tar_test")
 
 # --- Test: systemd_service with binary ---
 
@@ -21,6 +22,12 @@ build_test(
     targets = [":test_app_service"],
 )
 
+verify_tar_test(
+    name = "systemd_service_verify",
+    tar = ":test_app_service",
+    assertions = "assertions/systemd_service_with_binary.txt",
+)
+
 # --- Test: systemd_service without binary ---
 
 systemd_service(
@@ -31,6 +38,12 @@ systemd_service(
 build_test(
     name = "systemd_service_no_binary_test",
     targets = [":test_worker_service"],
+)
+
+verify_tar_test(
+    name = "systemd_service_no_binary_verify",
+    tar = ":test_worker_service",
+    assertions = "assertions/systemd_service_no_binary.txt",
 )
 
 # --- Test: systemd_service with custom wanted_by ---
@@ -48,6 +61,12 @@ build_test(
     targets = [":test_network_service"],
 )
 
+verify_tar_test(
+    name = "systemd_service_custom_wanted_by_verify",
+    tar = ":test_network_service",
+    assertions = "assertions/systemd_service_custom_wanted_by.txt",
+)
+
 # --- Test: systemd_service disabled ---
 
 systemd_service(
@@ -59,6 +78,12 @@ systemd_service(
 build_test(
     name = "systemd_service_disabled_test",
     targets = [":test_disabled_service"],
+)
+
+verify_tar_test(
+    name = "systemd_service_disabled_verify",
+    tar = ":test_disabled_service",
+    assertions = "assertions/systemd_service_disabled.txt",
 )
 
 # --- Test: systemd_service with extra_symlinks (.wants deps) ---
@@ -75,6 +100,12 @@ systemd_service(
 build_test(
     name = "systemd_service_extra_symlinks_test",
     targets = [":test_deps_service"],
+)
+
+verify_tar_test(
+    name = "systemd_service_extra_symlinks_verify",
+    tar = ":test_deps_service",
+    assertions = "assertions/systemd_service_extra_symlinks.txt",
 )
 
 # --- Test: install_files ---
@@ -98,6 +129,12 @@ build_test(
     targets = [":test_install_files"],
 )
 
+verify_tar_test(
+    name = "install_files_verify",
+    tar = ":test_install_files",
+    assertions = "assertions/install_files.txt",
+)
+
 # --- Test: rootfs composition ---
 
 # A simple base layer
@@ -117,6 +154,12 @@ rootfs(
 build_test(
     name = "rootfs_test",
     targets = [":test_rootfs"],
+)
+
+verify_tar_test(
+    name = "rootfs_composition_verify",
+    tar = ":test_rootfs",
+    assertions = "assertions/rootfs_composition.txt",
 )
 
 # --- Test: rootfs with inline files ---
@@ -154,6 +197,12 @@ build_test(
     targets = [":test_install_symlinks_only"],
 )
 
+verify_tar_test(
+    name = "install_files_symlinks_only_verify",
+    tar = ":test_install_symlinks_only",
+    assertions = "assertions/install_symlinks_only.txt",
+)
+
 # --- Test: install_files with empty_dirs ---
 
 install_files(
@@ -166,6 +215,12 @@ install_files(
 build_test(
     name = "install_files_empty_dirs_test",
     targets = [":test_install_empty_dirs"],
+)
+
+verify_tar_test(
+    name = "install_files_empty_dirs_verify",
+    tar = ":test_install_empty_dirs",
+    assertions = "assertions/install_empty_dirs.txt",
 )
 
 # --- Test: install_files with dest + symlinks (split behavior) ---
@@ -187,6 +242,12 @@ install_files(
 build_test(
     name = "install_files_dest_and_symlinks_test",
     targets = [":test_install_dest_and_symlinks"],
+)
+
+verify_tar_test(
+    name = "install_files_dest_and_symlinks_verify",
+    tar = ":test_install_dest_and_symlinks",
+    assertions = "assertions/install_dest_and_symlinks.txt",
 )
 
 # --- Test: rootfs without base ---

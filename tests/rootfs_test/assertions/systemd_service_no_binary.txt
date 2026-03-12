@@ -1,0 +1,6 @@
+# systemd_service without binary: service file + enable symlink, no binary
+file usr/lib/systemd/system/test-worker.service
+mode usr/lib/systemd/system/test-worker.service 0644
+symlink etc/systemd/system/multi-user.target.wants/test-worker.service /usr/lib/systemd/system/test-worker.service
+# No binary should be present
+!file usr/lib/test_worker_service

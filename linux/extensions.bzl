@@ -234,9 +234,64 @@ test_artifacts = module_extension(
 # === Debian packages (wraps rules_distroless apt) ===
 
 load("@rules_distroless//apt/private:deb_import.bzl", "deb_import")
-load("@rules_distroless//apt/private:deb_resolve.bzl", "deb_resolve")
+load("@rules_distroless//apt/private:deb_resolve.bzl", "internal_resolve")
 load("@rules_distroless//apt/private:deb_translate_lock.bzl", "deb_translate_lock")
 load("@rules_distroless//apt/private:lockfile.bzl", "lockfile")
+
+_RESOLVE_BUILD = """\
+load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+filegroup(
+    name = "lockfile",
+    srcs = ["lock.json"],
+    tags = ["manual"],
+    visibility = ["//visibility:public"],
+)
+
+sh_binary(
+    name = "lock",
+    srcs = ["copy.sh"],
+    data = ["lock.json"],
+    tags = ["manual"],
+    args = ["$(location :lock.json)"],
+    visibility = ["//visibility:public"],
+)
+"""
+
+_RESOLVE_COPY_SH = """\
+#!/usr/bin/env bash
+set -euo pipefail
+lock=$(realpath "$1")
+cd "$BUILD_WORKSPACE_DIRECTORY"
+echo "Writing lockfile to {lock_path}"
+cp "$lock" "{lock_path}"
+"""
+
+def _packages_resolve_impl(rctx):
+    """Resolve Debian packages and generate a lock file with correct output path."""
+    lockf = internal_resolve(
+        rctx,
+        rctx.attr.yq_toolchain_prefix,
+        rctx.attr.manifest,
+        rctx.attr.resolve_transitive,
+    )
+    lockf.write("lock.json")
+
+    rctx.file("copy.sh", _RESOLVE_COPY_SH.format(
+        lock_path = rctx.attr.lock_path,
+    ), executable = True)
+
+    rctx.file("BUILD.bazel", _RESOLVE_BUILD)
+
+_packages_resolve = repository_rule(
+    implementation = _packages_resolve_impl,
+    attrs = {
+        "manifest": attr.label(mandatory = True),
+        "resolve_transitive": attr.bool(default = True),
+        "lock_path": attr.string(mandatory = True),
+        "yq_toolchain_prefix": attr.string(default = "yq"),
+    },
+)
 
 def _generate_manifest_yaml(packages, arch, snapshot, distro, components):
     """Generate a rules_distroless manifest YAML string from structured attrs."""
@@ -296,11 +351,21 @@ def _packages_impl(module_ctx):
                 content = yaml_content,
             )
 
+            # Compute workspace-relative lock path from label
+            if pkg.lock:
+                lock_path = "{}{}".format(
+                    ("%s/" % pkg.lock.package) if pkg.lock.package else "",
+                    pkg.lock.name,
+                )
+            else:
+                lock_path = pkg.name + ".lock.json"
+
             # Create resolve repo (for `bazel run @name_resolve//:lock`)
-            deb_resolve(
+            _packages_resolve(
                 name = pkg.name + "_resolve",
                 manifest = "@" + pkg.name + "_manifest//:manifest.yaml",
                 resolve_transitive = True,
+                lock_path = lock_path,
             )
 
             if pkg.lock:

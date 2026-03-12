@@ -1,0 +1,7 @@
+# systemd_service with extra_symlinks (.wants dependencies)
+file usr/lib/systemd/system/test-app.service
+symlink etc/systemd/system/multi-user.target.wants/test-app.service /usr/lib/systemd/system/test-app.service
+# Extra .wants symlink
+symlink etc/systemd/system/test-app.service.wants/test-worker.service /usr/lib/systemd/system/test-worker.service
+# Binary
+file usr/lib/test_deps_service/test-app

@@ -1,0 +1,10 @@
+# rootfs composition: base + service + install_files
+# From base (test_base)
+file etc/test.conf
+# From service (test_app_service)
+file usr/lib/systemd/system/test-app.service
+symlink etc/systemd/system/multi-user.target.wants/test-app.service /usr/lib/systemd/system/test-app.service
+file usr/lib/test_app_service/test-app
+# From install_files (test_install_files)
+file usr/bin/test-app
+file etc/myapp/test.conf

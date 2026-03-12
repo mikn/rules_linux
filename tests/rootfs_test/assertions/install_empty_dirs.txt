@@ -1,0 +1,3 @@
+# install_files with empty_dirs
+dir etc/systemd/network
+dir var/lib/myapp
