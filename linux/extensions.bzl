@@ -242,12 +242,12 @@ def _generate_manifest_yaml(packages, arch, snapshot, distro, components):
     """Generate a rules_distroless manifest YAML string from structured attrs."""
     lines = ["version: 1", ""]
 
-    # Sources
-    channel = distro + " " + " ".join(components)
+    # Sources — one entry per component to match rules_distroless expectations
     url = "https://snapshot.debian.org/archive/debian/" + snapshot
     lines.append("sources:")
-    lines.append("  - channel: " + channel)
-    lines.append("    url: " + url)
+    for component in components:
+        lines.append("  - channel: " + distro + " " + component)
+        lines.append("    url: " + url)
     lines.append("")
 
     # Architectures
