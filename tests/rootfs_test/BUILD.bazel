@@ -1,0 +1,151 @@
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//linux:defs.bzl", "install_files", "rootfs", "systemd_service")
+
+# --- Test: systemd_service with binary ---
+
+genrule(
+    name = "fake_binary",
+    outs = ["test-app"],
+    cmd = "echo '#!/bin/sh' > $@",
+)
+
+systemd_service(
+    name = "test_app_service",
+    binary = ":fake_binary",
+    service_file = "test-app.service",
+)
+
+build_test(
+    name = "systemd_service_test",
+    targets = [":test_app_service"],
+)
+
+# --- Test: systemd_service without binary ---
+
+systemd_service(
+    name = "test_worker_service",
+    service_file = "test-worker.service",
+)
+
+build_test(
+    name = "systemd_service_no_binary_test",
+    targets = [":test_worker_service"],
+)
+
+# --- Test: systemd_service with custom wanted_by ---
+
+systemd_service(
+    name = "test_network_service",
+    binary = ":fake_binary",
+    binary_dest = "/usr/sbin",
+    service_file = "test-app.service",
+    wanted_by = "network.target",
+)
+
+build_test(
+    name = "systemd_service_custom_wanted_by_test",
+    targets = [":test_network_service"],
+)
+
+# --- Test: systemd_service disabled ---
+
+systemd_service(
+    name = "test_disabled_service",
+    enabled = False,
+    service_file = "test-app.service",
+)
+
+build_test(
+    name = "systemd_service_disabled_test",
+    targets = [":test_disabled_service"],
+)
+
+# --- Test: systemd_service with extra_symlinks (.wants deps) ---
+
+systemd_service(
+    name = "test_deps_service",
+    binary = ":fake_binary",
+    extra_symlinks = {
+        "/etc/systemd/system/test-app.service.wants/test-worker.service": "/usr/lib/systemd/system/test-worker.service",
+    },
+    service_file = "test-app.service",
+)
+
+build_test(
+    name = "systemd_service_extra_symlinks_test",
+    targets = [":test_deps_service"],
+)
+
+# --- Test: install_files ---
+
+genrule(
+    name = "fake_config",
+    outs = ["test.conf"],
+    cmd = "echo 'key=value' > $@",
+)
+
+install_files(
+    name = "test_install_files",
+    files = [
+        {"srcs": [":fake_binary"], "dest": "/usr/bin", "mode": "0755"},
+        {"srcs": [":fake_config"], "dest": "/etc/myapp", "mode": "0644"},
+    ],
+)
+
+build_test(
+    name = "install_files_test",
+    targets = [":test_install_files"],
+)
+
+# --- Test: rootfs composition ---
+
+# A simple base layer
+pkg_tar(
+    name = "test_base",
+    srcs = [":fake_config"],
+    package_dir = "/etc",
+)
+
+rootfs(
+    name = "test_rootfs",
+    base = ":test_base",
+    extra_tars = [":test_install_files"],
+    services = [":test_app_service"],
+)
+
+build_test(
+    name = "rootfs_test",
+    targets = [":test_rootfs"],
+)
+
+# --- Test: rootfs with inline files ---
+
+rootfs(
+    name = "test_rootfs_inline",
+    base = ":test_base",
+    files = [
+        {"srcs": [":fake_binary"], "dest": "/opt/myapp", "mode": "0755"},
+    ],
+    services = [":test_worker_service"],
+)
+
+build_test(
+    name = "rootfs_inline_files_test",
+    targets = [":test_rootfs_inline"],
+)
+
+# --- Test: rootfs without base ---
+
+rootfs(
+    name = "test_rootfs_no_base",
+    services = [":test_app_service"],
+    files = [
+        {"srcs": [":fake_config"], "dest": "/etc/myapp"},
+    ],
+)
+
+build_test(
+    name = "rootfs_no_base_test",
+    targets = [":test_rootfs_no_base"],
+)

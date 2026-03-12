@@ -230,3 +230,177 @@ test_artifacts = module_extension(
     implementation = _test_artifacts_impl,
     tag_classes = {"http_file": _http_file_tag},
 )
+
+# === Debian packages (wraps rules_distroless apt) ===
+
+load("@rules_distroless//apt/private:deb_import.bzl", "deb_import")
+load("@rules_distroless//apt/private:deb_resolve.bzl", "deb_resolve")
+load("@rules_distroless//apt/private:deb_translate_lock.bzl", "deb_translate_lock")
+load("@rules_distroless//apt/private:lockfile.bzl", "lockfile")
+
+def _generate_manifest_yaml(packages, arch, snapshot, distro, components):
+    """Generate a rules_distroless manifest YAML string from structured attrs."""
+    lines = ["version: 1", ""]
+
+    # Sources
+    channel = distro + " " + " ".join(components)
+    url = "https://snapshot.debian.org/archive/debian/" + snapshot
+    lines.append("sources:")
+    lines.append("  - channel: " + channel)
+    lines.append("    url: " + url)
+    lines.append("")
+
+    # Architectures
+    lines.append("archs:")
+    lines.append("  - " + arch)
+    lines.append("")
+
+    # Packages
+    lines.append("packages:")
+    for pkg in packages:
+        lines.append("  - " + pkg)
+
+    return "\n".join(lines) + "\n"
+
+def _debian_manifest_repo_impl(ctx):
+    """Repository rule that generates a manifest YAML from attrs."""
+    ctx.file("manifest.yaml", ctx.attr.content)
+    ctx.file("BUILD.bazel", """\
+exports_files(["manifest.yaml"], visibility = ["//visibility:public"])
+""")
+
+_debian_manifest_repo = repository_rule(
+    implementation = _debian_manifest_repo_impl,
+    attrs = {
+        "content": attr.string(mandatory = True),
+    },
+)
+
+def _packages_impl(module_ctx):
+    root_direct_deps = []
+    root_direct_dev_deps = []
+
+    for mod in module_ctx.modules:
+        for pkg in mod.tags.debian:
+            yaml_content = _generate_manifest_yaml(
+                packages = pkg.packages,
+                arch = pkg.arch,
+                snapshot = pkg.snapshot,
+                distro = pkg.distro,
+                components = pkg.components,
+            )
+
+            # Generate manifest repo (for lock regeneration and documentation)
+            _debian_manifest_repo(
+                name = pkg.name + "_manifest",
+                content = yaml_content,
+            )
+
+            # Create resolve repo (for `bazel run @name_resolve//:lock`)
+            deb_resolve(
+                name = pkg.name + "_resolve",
+                manifest = "@" + pkg.name + "_manifest//:manifest.yaml",
+                resolve_transitive = True,
+            )
+
+            if pkg.lock:
+                # Production path: use checked-in lock file
+                lock_content = module_ctx.read(pkg.lock)
+                lockf = lockfile.from_json(module_ctx, lock_content)
+
+                for package in lockf.packages():
+                    package_key = lockfile.make_package_key(
+                        package["name"],
+                        package["version"],
+                        package["arch"],
+                    )
+                    deb_import(
+                        name = "%s_%s" % (pkg.name, package_key),
+                        urls = package["urls"],
+                        sha256 = package["sha256"],
+                    )
+
+                deb_translate_lock(
+                    name = pkg.name,
+                    lock = pkg.lock,
+                    lock_content = lockf.as_json(),
+                )
+            else:
+                # Bootstrap path: resolve on-the-fly (non-hermetic)
+                # buildifier: disable=print
+                print("\nNo lock file for '%s'. Run `bazel run @%s_resolve//:lock` to generate one." % (pkg.name, pkg.name))
+
+                # Still create the translate repo with empty content so
+                # the repo name exists (avoids confusing errors)
+                lockf = lockfile.from_json(module_ctx, None)
+                deb_translate_lock(
+                    name = pkg.name,
+                    lock_content = lockf.as_json(),
+                )
+
+            if mod.is_root:
+                if module_ctx.is_dev_dependency(pkg):
+                    root_direct_dev_deps.append(pkg.name)
+                    root_direct_dev_deps.append(pkg.name + "_resolve")
+                else:
+                    root_direct_deps.append(pkg.name)
+                    root_direct_deps.append(pkg.name + "_resolve")
+
+    return module_ctx.extension_metadata(
+        root_module_direct_deps = root_direct_deps,
+        root_module_direct_dev_deps = root_direct_dev_deps,
+    )
+
+_debian_tag = tag_class(
+    attrs = {
+        "name": attr.string(
+            mandatory = True,
+            doc = "Name of the generated repository. Use @name//:flat for the merged rootfs tar.",
+        ),
+        "packages": attr.string_list(
+            mandatory = True,
+            doc = "List of Debian package names to install.",
+        ),
+        "arch": attr.string(
+            default = "amd64",
+            doc = "Debian architecture (amd64, arm64, etc.).",
+        ),
+        "snapshot": attr.string(
+            mandatory = True,
+            doc = "Debian snapshot timestamp (e.g., '20250101T000000Z').",
+        ),
+        "distro": attr.string(
+            default = "bookworm",
+            doc = "Debian distribution codename.",
+        ),
+        "components": attr.string_list(
+            default = ["main"],
+            doc = "Repository components (e.g., ['main', 'non-free-firmware']).",
+        ),
+        "lock": attr.label(
+            doc = "Lock file for hermetic builds. Generate with: bazel run @<name>_resolve//:lock",
+        ),
+    },
+    doc = """Declare Debian packages to install into a rootfs.
+
+Example:
+```starlark
+packages = use_extension("@rules_linux//linux:extensions.bzl", "packages")
+packages.debian(
+    name = "my_debian",
+    packages = ["nginx", "curl", "ca-certificates"],
+    arch = "amd64",
+    snapshot = "20250101T000000Z",
+    lock = "//:my_debian.lock.json",
+)
+use_repo(packages, "my_debian")
+```
+
+Then use `@my_debian//:flat` in your rootfs composition.
+""",
+)
+
+packages = module_extension(
+    implementation = _packages_impl,
+    tag_classes = {"debian": _debian_tag},
+)

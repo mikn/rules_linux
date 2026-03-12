@@ -1,6 +1,7 @@
 """Public API for rules_linux."""
 
 load("//linux:providers.bzl", _LinuxImageInfo = "LinuxImageInfo", _LinuxKernelInfo = "LinuxKernelInfo")
+load("//linux:rootfs.bzl", _install_files = "install_files", _rootfs = "rootfs", _systemd_service = "systemd_service")
 load("//linux/initrd:initrd.bzl", _initrd = "initrd")
 load("//linux/initrd:strip_profiles.bzl", _STRIP_PROFILE_MINIMAL = "STRIP_PROFILE_MINIMAL", _STRIP_PROFILE_NONE = "STRIP_PROFILE_NONE", _STRIP_PROFILE_SERVER = "STRIP_PROFILE_SERVER")
 load("//linux/iso:iso.bzl", _iso_image = "iso_image")
@@ -20,6 +21,11 @@ initrd = _initrd
 uki_image = _uki_image
 sign_image = _sign_image
 iso_image = _iso_image
+
+# Rootfs assembly macros
+systemd_service = _systemd_service
+install_files = _install_files
+rootfs = _rootfs
 
 # Strip profiles
 STRIP_PROFILE_NONE = _STRIP_PROFILE_NONE

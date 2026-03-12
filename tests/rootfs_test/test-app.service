@@ -1,0 +1,11 @@
+[Unit]
+Description=Test Application
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/lib/test_app/test-app
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
