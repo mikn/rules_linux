@@ -1,4 +1,5 @@
 load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_go//go:def.bzl", "go_test")
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//linux:defs.bzl", "STRIP_PROFILE_NONE", "initrd")
 
@@ -37,4 +38,19 @@ initrd(
 build_test(
     name = "initrd_strip_build_test",
     targets = [":test_initrd_stripped"],
+)
+
+# --- Test: bootstrap kernel and initrd are valid artifacts ---
+
+go_test(
+    name = "bootstrap_test",
+    srcs = ["bootstrap_test.go"],
+    data = [
+        "//linux/bootstrap:kernel",
+        "//linux/bootstrap:initrd",
+    ],
+    env = {
+        "BOOTSTRAP_KERNEL": "$(rlocationpath //linux/bootstrap:kernel)",
+        "BOOTSTRAP_INITRD": "$(rlocationpath //linux/bootstrap:initrd)",
+    },
 )
