@@ -1,5 +1,10 @@
 """Module extensions for rules_linux."""
 
+load("@rules_distroless//apt/private:deb_import.bzl", "deb_import")
+load("@rules_distroless//apt/private:deb_resolve.bzl", "internal_resolve")
+load("@rules_distroless//apt/private:deb_translate_lock.bzl", "deb_translate_lock")
+load("@rules_distroless//apt/private:lockfile.bzl", "lockfile")
+
 # === Kernel source tarball download ===
 
 def _kernel_source_repo_impl(ctx):
@@ -232,11 +237,6 @@ test_artifacts = module_extension(
 )
 
 # === Debian packages (wraps rules_distroless apt) ===
-
-load("@rules_distroless//apt/private:deb_import.bzl", "deb_import")
-load("@rules_distroless//apt/private:deb_resolve.bzl", "internal_resolve")
-load("@rules_distroless//apt/private:deb_translate_lock.bzl", "deb_translate_lock")
-load("@rules_distroless//apt/private:lockfile.bzl", "lockfile")
 
 _RESOLVE_BUILD = """\
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
