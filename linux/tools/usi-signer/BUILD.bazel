@@ -1,4 +1,4 @@
-load("@rules_go//go:def.bzl", "go_binary", "go_library")
+load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 
 go_library(
     name = "usi-signer_lib",
@@ -19,4 +19,10 @@ go_binary(
     name = "usi-signer",
     embed = [":usi-signer_lib"],
     visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "usi-signer_test",
+    srcs = ["signer_test.go"],
+    embed = [":usi-signer_lib"],
 )
