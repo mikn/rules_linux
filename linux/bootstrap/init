@@ -26,16 +26,24 @@ mkdir -p /dev/pts
 mount -t devpts devpts /dev/pts
 
 # rules_distroless extracts debs without running postinst scripts, so
-# Debian alternatives, depmod, and other postinst setup is missing.
+# Debian alternatives, depmod, ldconfig, and other postinst setup is missing.
 [ -e /usr/bin/awk ] || ln -s gawk /usr/bin/awk
 [ -e /bin/sh ] || ln -s bash /bin/sh
 [ -e /usr/bin/cc ] || ln -s clang /usr/bin/cc
+
+# Populate the shared library cache so depmod/modprobe can dlopen liblzma
+# (needed to decompress .ko.xz kernel modules from Debian stock kernels).
+/usr/sbin/ldconfig 2>/dev/null || true
+
+# Rebuild module dependency tree (Debian postinst normally does this).
 depmod "$(uname -r)" 2>/dev/null || true
 
 # Load kernel modules needed for VM communication.
 # Debian stock kernels build these as modules, not built-in.
 modprobe virtio_pci 2>/dev/null || true
+modprobe virtio_blk 2>/dev/null || true
 modprobe virtio_console 2>/dev/null || true
+modprobe ext4 2>/dev/null || true
 modprobe 9p 2>/dev/null || true
 modprobe 9pnet 2>/dev/null || true
 modprobe 9pnet_virtio 2>/dev/null || true

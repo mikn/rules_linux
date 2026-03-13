@@ -24,8 +24,8 @@ build_test(
 
 verify_tar_test(
     name = "systemd_service_verify",
-    tar = ":test_app_service",
     assertions = "assertions/systemd_service_with_binary.txt",
+    tar = ":test_app_service",
 )
 
 # --- Test: systemd_service without binary ---
@@ -42,8 +42,8 @@ build_test(
 
 verify_tar_test(
     name = "systemd_service_no_binary_verify",
-    tar = ":test_worker_service",
     assertions = "assertions/systemd_service_no_binary.txt",
+    tar = ":test_worker_service",
 )
 
 # --- Test: systemd_service with custom wanted_by ---
@@ -63,8 +63,8 @@ build_test(
 
 verify_tar_test(
     name = "systemd_service_custom_wanted_by_verify",
-    tar = ":test_network_service",
     assertions = "assertions/systemd_service_custom_wanted_by.txt",
+    tar = ":test_network_service",
 )
 
 # --- Test: systemd_service disabled ---
@@ -82,8 +82,8 @@ build_test(
 
 verify_tar_test(
     name = "systemd_service_disabled_verify",
-    tar = ":test_disabled_service",
     assertions = "assertions/systemd_service_disabled.txt",
+    tar = ":test_disabled_service",
 )
 
 # --- Test: systemd_service with extra_symlinks (.wants deps) ---
@@ -104,8 +104,8 @@ build_test(
 
 verify_tar_test(
     name = "systemd_service_extra_symlinks_verify",
-    tar = ":test_deps_service",
     assertions = "assertions/systemd_service_extra_symlinks.txt",
+    tar = ":test_deps_service",
 )
 
 # --- Test: install_files ---
@@ -119,8 +119,16 @@ genrule(
 install_files(
     name = "test_install_files",
     files = [
-        {"srcs": [":fake_binary"], "dest": "/usr/bin", "mode": "0755"},
-        {"srcs": [":fake_config"], "dest": "/etc/myapp", "mode": "0644"},
+        {
+            "srcs": [":fake_binary"],
+            "dest": "/usr/bin",
+            "mode": "0755",
+        },
+        {
+            "srcs": [":fake_config"],
+            "dest": "/etc/myapp",
+            "mode": "0644",
+        },
     ],
 )
 
@@ -131,8 +139,8 @@ build_test(
 
 verify_tar_test(
     name = "install_files_verify",
-    tar = ":test_install_files",
     assertions = "assertions/install_files.txt",
+    tar = ":test_install_files",
 )
 
 # --- Test: rootfs composition ---
@@ -158,8 +166,8 @@ build_test(
 
 verify_tar_test(
     name = "rootfs_composition_verify",
-    tar = ":test_rootfs",
     assertions = "assertions/rootfs_composition.txt",
+    tar = ":test_rootfs",
 )
 
 # --- Test: rootfs with inline files ---
@@ -168,7 +176,11 @@ rootfs(
     name = "test_rootfs_inline",
     base = ":test_base",
     files = [
-        {"srcs": [":fake_binary"], "dest": "/opt/myapp", "mode": "0755"},
+        {
+            "srcs": [":fake_binary"],
+            "dest": "/opt/myapp",
+            "mode": "0755",
+        },
     ],
     services = [":test_worker_service"],
 )
@@ -199,8 +211,8 @@ build_test(
 
 verify_tar_test(
     name = "install_files_symlinks_only_verify",
-    tar = ":test_install_symlinks_only",
     assertions = "assertions/install_symlinks_only.txt",
+    tar = ":test_install_symlinks_only",
 )
 
 # --- Test: install_files with empty_dirs ---
@@ -208,7 +220,10 @@ verify_tar_test(
 install_files(
     name = "test_install_empty_dirs",
     files = [
-        {"empty_dirs": ["/etc/systemd/network", "/var/lib/myapp"]},
+        {"empty_dirs": [
+            "/etc/systemd/network",
+            "/var/lib/myapp",
+        ]},
     ],
 )
 
@@ -219,8 +234,8 @@ build_test(
 
 verify_tar_test(
     name = "install_files_empty_dirs_verify",
-    tar = ":test_install_empty_dirs",
     assertions = "assertions/install_empty_dirs.txt",
+    tar = ":test_install_empty_dirs",
 )
 
 # --- Test: install_files with dest + symlinks (split behavior) ---
@@ -246,18 +261,21 @@ build_test(
 
 verify_tar_test(
     name = "install_files_dest_and_symlinks_verify",
-    tar = ":test_install_dest_and_symlinks",
     assertions = "assertions/install_dest_and_symlinks.txt",
+    tar = ":test_install_dest_and_symlinks",
 )
 
 # --- Test: rootfs without base ---
 
 rootfs(
     name = "test_rootfs_no_base",
-    services = [":test_app_service"],
     files = [
-        {"srcs": [":fake_config"], "dest": "/etc/myapp"},
+        {
+            "srcs": [":fake_config"],
+            "dest": "/etc/myapp",
+        },
     ],
+    services = [":test_app_service"],
 )
 
 build_test(

@@ -16,6 +16,10 @@ bazel_dep(name = "ape", version = "1.1.0")
 
 # QEMU toolchain for macOS kernel build via VM harness
 bazel_dep(name = "rules_qemu", version = "0.1.0")
+local_path_override(
+    module_name = "rules_qemu",
+    path = "../rules_qemu",
+)
 
 # Kernel build toolchains (CC toolchain provided by consumer's registered toolchain)
 bazel_dep(name = "rules_flex", version = "0.4")
@@ -25,6 +29,9 @@ bazel_dep(name = "rules_perl", version = "1.0.0")
 bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
 
 apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
+
+# Legacy monolithic bootstrap (still used for :kernel extraction until lock files
+# for the split sets are generated).
 apt.install(
     name = "bootstrap_debian_amd64",
     lock = "//linux/bootstrap:bootstrap_amd64.lock.json",
@@ -35,7 +42,62 @@ apt.install(
     lock = "//linux/bootstrap:bootstrap_arm64.lock.json",
     manifest = "//linux/bootstrap:bootstrap_arm64.yaml",
 )
-use_repo(apt, "bootstrap_debian_amd64", "bootstrap_debian_arm64")
+
+# Split bootstrap: runtime initrd (minimal VM boot environment)
+apt.install(
+    name = "bootstrap_runtime_amd64",
+    lock = "//linux/bootstrap:bootstrap_runtime_amd64.lock.json",
+    manifest = "//linux/bootstrap:bootstrap_runtime_amd64.yaml",
+)
+apt.install(
+    name = "bootstrap_runtime_arm64",
+    lock = "//linux/bootstrap:bootstrap_runtime_arm64.lock.json",
+    manifest = "//linux/bootstrap:bootstrap_runtime_arm64.yaml",
+)
+
+# Split bootstrap: sysroot — build tools + dev headers (everything except LLVM).
+# LLVM comes from the vm_toolchain extension below for version parity with
+# the native Linux build path's toolchains_llvm registration.
+apt.install(
+    name = "bootstrap_sysroot_amd64",
+    lock = "//linux/bootstrap:bootstrap_sysroot_amd64.lock.json",
+    manifest = "//linux/bootstrap:bootstrap_sysroot_amd64.yaml",
+)
+apt.install(
+    name = "bootstrap_sysroot_arm64",
+    lock = "//linux/bootstrap:bootstrap_sysroot_arm64.lock.json",
+    manifest = "//linux/bootstrap:bootstrap_sysroot_arm64.yaml",
+)
+
+use_repo(
+    apt,
+    "bootstrap_debian_amd64",
+    "bootstrap_debian_arm64",
+    "bootstrap_runtime_amd64",
+    "bootstrap_runtime_arm64",
+    "bootstrap_sysroot_amd64",
+    "bootstrap_sysroot_arm64",
+)
+
+# Linux LLVM distribution for the kernel_build VM worker.
+# Downloads the same LLVM version used by toolchains_llvm so native and VM
+# build paths use identical compiler versions.
+#
+# Usage in consumer MODULE.bazel:
+#
+#   LLVM_VERSION = "19.1.7"
+#
+#   llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+#   llvm.toolchain(name = "llvm_toolchain", llvm_versions = {"": LLVM_VERSION})
+#   ...
+#
+#   vm_toolchain = use_extension("@rules_linux//linux:extensions.bzl", "vm_toolchain")
+#   vm_toolchain.llvm(version = LLVM_VERSION)
+#   use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
+#
+vm_toolchain = use_extension("//linux:extensions.bzl", "vm_toolchain", dev_dependency = True)
+vm_toolchain.llvm(version = "19.1.7")
+use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
 
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
@@ -43,4 +105,5 @@ use_repo(
     go_deps,
     "com_github_diskfs_go_diskfs",
     "com_github_foxboron_go_uefi",
+    "com_github_mikn_rules_qemu",
 )

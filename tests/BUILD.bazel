@@ -68,8 +68,8 @@ go_test(
     name = "bootstrap_test",
     srcs = ["bootstrap_test.go"],
     data = [
-        "//linux/bootstrap:kernel",
         "//linux/bootstrap:initrd",
+        "//linux/bootstrap:kernel",
     ],
     env = {
         "BOOTSTRAP_KERNEL": "$(rlocationpath //linux/bootstrap:kernel)",

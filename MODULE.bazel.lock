@@ -290,6 +290,47 @@
   },
   "selectedYankedVersions": {},
   "moduleExtensions": {
+    "//linux:extensions.bzl%vm_toolchain": {
+      "general": {
+        "bzlTransitiveDigest": "Z1Ztz6ecfFN88O9lISw4xUt69v+Ri7s2acfvJ31qOkw=",
+        "usagesDigest": "+sCGUBmOgJch1Bof6/JCbeQ10A0j0qW0Wd24/YTlZXY=",
+        "recordedInputs": [
+          "REPO_MAPPING:,rules_distroless rules_distroless+",
+          "REPO_MAPPING:rules_distroless+,bazel_lib bazel_lib+",
+          "REPO_MAPPING:rules_distroless+,bazel_skylib bazel_skylib+",
+          "REPO_MAPPING:rules_distroless+,bazel_tools bazel_tools"
+        ],
+        "generatedRepoSpecs": {
+          "vm_llvm_amd64": {
+            "repoRuleId": "@@//linux:extensions.bzl%_vm_llvm_repo",
+            "attributes": {
+              "version": "19.1.7",
+              "arch": "amd64",
+              "sha256": "",
+              "urls": []
+            }
+          },
+          "vm_llvm_arm64": {
+            "repoRuleId": "@@//linux:extensions.bzl%_vm_llvm_repo",
+            "attributes": {
+              "version": "19.1.7",
+              "arch": "arm64",
+              "sha256": "",
+              "urls": []
+            }
+          }
+        },
+        "moduleExtensionMetadata": {
+          "explicitRootModuleDirectDeps": [],
+          "explicitRootModuleDirectDevDeps": [
+            "vm_llvm_amd64",
+            "vm_llvm_arm64"
+          ],
+          "useAllRepos": "NO",
+          "reproducible": false
+        }
+      }
+    },
     "@@rules_bison+//bison/internal:default_toolchain_ext.bzl%default_toolchain_ext": {
       "general": {
         "bzlTransitiveDigest": "Vd3jEbJ8YAI/n4FupsISXkB0UZACFAUWLWiflmiPxDI=",

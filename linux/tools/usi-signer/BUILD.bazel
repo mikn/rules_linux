@@ -6,7 +6,7 @@ go_library(
         "main.go",
         "pki.go",
     ],
-    importpath = "github.com/molnett/rules_linux/linux/tools/usi-signer",
+    importpath = "github.com/mikn/rules_linux/linux/tools/usi-signer",
     visibility = ["//visibility:private"],
     deps = [
         "@com_github_foxboron_go_uefi//authenticode",

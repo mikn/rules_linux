@@ -236,6 +236,145 @@ test_artifacts = module_extension(
     tag_classes = {"http_file": _http_file_tag},
 )
 
+# === VM toolchain (Linux LLVM distribution for kernel_build VM) ===
+
+_LLVM_BASE_URL = "https://github.com/llvm/llvm-project/releases/download/llvmorg-{version}"
+
+def _vm_llvm_repo_impl(ctx):
+    """Download the Linux LLVM binary distribution for use inside the kernel_build VM."""
+    version = ctx.attr.version
+    arch = ctx.attr.arch
+
+    # LLVM release naming is inconsistent across architectures:
+    #   x86_64: LLVM-{version}-Linux-X64.tar.xz (new scheme, LLVM 19+)
+    #   arm64:  clang+llvm-{version}-aarch64-linux-gnu.tar.xz (legacy scheme)
+    if arch == "amd64":
+        filename = "LLVM-{version}-Linux-X64.tar.xz".format(version = version)
+    elif arch == "arm64":
+        filename = "clang+llvm-{version}-aarch64-linux-gnu.tar.xz".format(version = version)
+    else:
+        fail("Unsupported arch for vm_llvm: %s (expected amd64 or arm64)" % arch)
+
+    urls = ctx.attr.urls
+    if not urls:
+        urls = [
+            "{base}/{filename}".format(
+                base = _LLVM_BASE_URL.format(version = version),
+                filename = filename,
+            ),
+        ]
+
+    ctx.download(
+        url = urls,
+        output = filename,
+        sha256 = ctx.attr.sha256,
+    )
+
+    # Create a stable name so consumers don't need to know the version.
+    ctx.symlink(filename, "llvm.tar.xz")
+
+    ctx.file("BUILD.bazel", """\
+exports_files(
+    ["llvm.tar.xz"],
+    visibility = ["//visibility:public"],
+)
+""")
+
+_vm_llvm_repo = repository_rule(
+    implementation = _vm_llvm_repo_impl,
+    attrs = {
+        "version": attr.string(mandatory = True),
+        "arch": attr.string(mandatory = True),
+        "sha256": attr.string(default = ""),
+        "urls": attr.string_list(default = []),
+    },
+)
+
+def _vm_toolchain_impl(module_ctx):
+    root_direct_deps = []
+    root_direct_dev_deps = []
+
+    for mod in module_ctx.modules:
+        for llvm in mod.tags.llvm:
+            name = llvm.name
+
+            # Resolve per-arch SHA-256 and URLs from dict attrs.
+            amd64_sha = llvm.sha256.get("amd64", "")
+            arm64_sha = llvm.sha256.get("arm64", "")
+            amd64_urls = llvm.urls.get("amd64", [])
+            arm64_urls = llvm.urls.get("arm64", [])
+
+            _vm_llvm_repo(
+                name = name + "_amd64",
+                version = llvm.version,
+                arch = "amd64",
+                sha256 = amd64_sha,
+                urls = amd64_urls,
+            )
+            _vm_llvm_repo(
+                name = name + "_arm64",
+                version = llvm.version,
+                arch = "arm64",
+                sha256 = arm64_sha,
+                urls = arm64_urls,
+            )
+
+            if mod.is_root:
+                names = [name + "_amd64", name + "_arm64"]
+                if module_ctx.is_dev_dependency(llvm):
+                    root_direct_dev_deps.extend(names)
+                else:
+                    root_direct_deps.extend(names)
+
+    return module_ctx.extension_metadata(
+        root_module_direct_deps = root_direct_deps,
+        root_module_direct_dev_deps = root_direct_dev_deps,
+    )
+
+_llvm_tag = tag_class(
+    attrs = {
+        "name": attr.string(default = "vm_llvm"),
+        "version": attr.string(
+            mandatory = True,
+            doc = "LLVM version to download (e.g., '19.1.7'). Use the same version as your toolchains_llvm registration.",
+        ),
+        "sha256": attr.string_dict(
+            default = {},
+            doc = 'Per-arch SHA-256 digests: {"amd64": "...", "arm64": "..."}. Omit for non-hermetic fetches.',
+        ),
+        "urls": attr.string_list_dict(
+            default = {},
+            doc = 'Per-arch URL overrides: {"amd64": ["..."], "arm64": ["..."]}. Defaults to GitHub releases.',
+        ),
+    },
+    doc = """Download the Linux LLVM binary distribution for the kernel_build VM worker.
+
+The VM worker boots a Linux QEMU VM to build kernels on macOS. It needs Linux-native
+LLVM binaries (clang, lld, llvm-ar, etc.) — the host macOS toolchain can't run inside
+the VM. This extension downloads the official LLVM release for Linux.
+
+Use the same LLVM version as your toolchains_llvm registration to ensure parity:
+
+```starlark
+LLVM_VERSION = "19.1.7"
+
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm.toolchain(name = "llvm_toolchain", llvm_versions = {"": LLVM_VERSION})
+
+vm_toolchain = use_extension("@rules_linux//linux:extensions.bzl", "vm_toolchain")
+vm_toolchain.llvm(version = LLVM_VERSION)
+use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
+```
+
+Then `@vm_llvm_amd64` and `@vm_llvm_arm64` are available as toolchain inputs.
+""",
+)
+
+vm_toolchain = module_extension(
+    implementation = _vm_toolchain_impl,
+    tag_classes = {"llvm": _llvm_tag},
+)
+
 # === Debian packages (wraps rules_distroless apt) ===
 
 _RESOLVE_BUILD = """\
