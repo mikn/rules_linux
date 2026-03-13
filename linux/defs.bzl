@@ -4,7 +4,7 @@ load("//linux:providers.bzl", _LinuxImageInfo = "LinuxImageInfo", _LinuxKernelIn
 load("//linux:rootfs.bzl", _install_files = "install_files", _rootfs = "rootfs", _systemd_service = "systemd_service")
 load("//linux/initrd:initrd.bzl", _initrd = "initrd")
 load("//linux/initrd:strip_profiles.bzl", _STRIP_PROFILE_MINIMAL = "STRIP_PROFILE_MINIMAL", _STRIP_PROFILE_NONE = "STRIP_PROFILE_NONE", _STRIP_PROFILE_SERVER = "STRIP_PROFILE_SERVER")
-load("//linux/iso:iso.bzl", _iso_image = "iso_image")
+load("//linux/iso:iso.bzl", _iso_image = "iso_image", _iso_multiarch = "iso_multiarch")
 load("//linux/kernel:kernel_build.bzl", _kernel_build = "kernel_build")
 load("//linux/kernel:kernel_extract.bzl", _kernel_extract = "kernel_extract")
 load("//linux/signing:signing.bzl", _sign_image = "sign_image")
@@ -21,6 +21,7 @@ initrd = _initrd
 uki_image = _uki_image
 sign_image = _sign_image
 iso_image = _iso_image
+iso_multiarch = _iso_multiarch
 
 # Rootfs assembly macros
 systemd_service = _systemd_service

@@ -3,7 +3,7 @@ load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
 go_library(
     name = "mkiso_lib",
     srcs = ["main.go"],
-    importpath = "github.com/molnett/rules_linux/linux/tools/mkiso",
+    importpath = "github.com/mikn/rules_linux/linux/tools/mkiso",
     visibility = ["//visibility:private"],
     deps = [
         "@com_github_diskfs_go_diskfs//:go-diskfs",

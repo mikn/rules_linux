@@ -19,6 +19,7 @@ var (
 	usiPath    = flag.String("usi", "", "Path to USI/UKI file")
 	outputPath = flag.String("output", "", "Path for output ISO file")
 	archFlag   = flag.String("arch", "x86_64", "Target architecture: x86_64 or arm64")
+	volumeID   = flag.String("volume-id", "LINUX", "ISO 9660 volume identifier (max 32 chars)")
 )
 
 // efiBootFilename returns the UEFI default boot filename for the given architecture.
@@ -49,12 +50,12 @@ func main() {
 	}
 
 	dataFiles := flag.Args()
-	if err := createUEFIBootableISO(*usiPath, dataFiles, *outputPath, bootFilename); err != nil {
+	if err := createUEFIBootableISO(*usiPath, dataFiles, *outputPath, bootFilename, *volumeID); err != nil {
 		log.Fatalf("Failed to create ISO: %v", err)
 	}
 }
 
-func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string, bootFilename string) error {
+func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string, bootFilename string, volumeIdentifier string) error {
 	// Step 1: Do a dry run to calculate exact content size
 	fmt.Printf("Calculating required space...\n")
 	contentSize, err := calculateContentSize(usiPath, dataFiles)
@@ -85,7 +86,7 @@ func createUEFIBootableISO(usiPath string, dataFiles []string, outputPath string
 	}
 
 	// Step 3: Create ISO with El Torito boot configuration
-	err = createISO(espImg, dataFiles, outputPath, isoSize)
+	err = createISO(espImg, dataFiles, outputPath, isoSize, volumeIdentifier)
 	if err != nil {
 		return fmt.Errorf("failed to create ISO: %w", err)
 	}
@@ -156,7 +157,7 @@ func createESP(usiPath, espPath string, bootFilename string) (int64, error) {
 	return espSize, nil
 }
 
-func createISO(espPath string, dataFiles []string, outputPath string, isoSize int64) error {
+func createISO(espPath string, dataFiles []string, outputPath string, isoSize int64, volumeIdentifier string) error {
 
 	// Create temporary working directory for ISO content
 	workDir := filepath.Join(os.TempDir(), "iso-work")
@@ -216,7 +217,7 @@ func createISO(espPath string, dataFiles []string, outputPath string, isoSize in
 	err = iso9660FS.Finalize(iso9660.FinalizeOptions{
 		RockRidge:        true,
 		DeepDirectories:  true,
-		VolumeIdentifier: "BULLDOZER",
+		VolumeIdentifier: volumeIdentifier,
 		ElTorito: &iso9660.ElTorito{
 			BootCatalog: "/boot.catalog",
 			Platform:    iso9660.EFI,
