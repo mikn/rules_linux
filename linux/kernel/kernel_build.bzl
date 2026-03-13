@@ -422,67 +422,92 @@ def _kernel_build_vm_impl(ctx):
     modules_tar = ctx.actions.declare_file(ctx.label.name + ".modules.tar")
     dot_config = ctx.actions.declare_file(ctx.label.name + ".config")
 
-    # Resolve QEMU binary from the toolchain.
+    # Resolve QEMU toolchain.
     qemu_toolchain = ctx.toolchains[_QEMU_TOOLCHAIN_TYPE]
     qemu_info = qemu_toolchain.qemu_info
-    qemu_binary = qemu_info.qemu_system
-
-    # Build the source staging directory inputs.
-    inputs = [source_tarball]
-    if ctx.file.config:
-        inputs.append(ctx.file.config)
-    for frag in ctx.files.config_fragments:
-        inputs.append(frag)
+    qemu_system = qemu_info.qemu_system
+    qemu_img = qemu_info.qemu_img
 
     if not ctx.file.config and not ctx.attr.defconfig:
         fail("Either config or defconfig must be specified")
 
-    # vmbuilder args.
+    # Per-request arguments passed to the worker for each build action.
     args = ctx.actions.args()
-    if qemu_binary:
-        args.add("--qemu", qemu_binary.path)
-    args.add("--kernel", ctx.file._bootstrap_kernel.path)
-    args.add("--initrd", ctx.file._bootstrap_initrd.path)
+    args.add("--source-tarball", source_tarball)
     args.add("--arch", arch)
-    args.add("--output-vmlinuz", vmlinuz.path)
-    args.add("--output-system-map", system_map.path)
-    args.add("--output-modules-tar", modules_tar.path)
-    args.add("--output-config", dot_config.path)
-    args.add("--memory", ctx.attr.memory)
-    args.add("--source-tarball", source_tarball.path)
-    args.add("--accel", qemu_info.accel)
-    args.add("--machine-type", qemu_info.machine_type)
+    args.add("--output-vmlinuz", vmlinuz)
+    args.add("--output-system-map", system_map)
+    args.add("--output-modules", modules_tar)
+    args.add("--output-config", dot_config)
+
+    if ctx.file.config:
+        args.add("--config", ctx.file.config)
+    elif ctx.attr.defconfig:
+        args.add("--defconfig", ctx.attr.defconfig)
+
+    for frag in ctx.files.config_fragments:
+        args.add("--config-fragment", frag)
 
     if ctx.attr.make_jobs > 0:
         args.add("--jobs", str(ctx.attr.make_jobs))
 
-    if ctx.file.config:
-        args.add("--config", ctx.file.config.path)
-    elif ctx.attr.defconfig:
-        args.add("--defconfig", ctx.attr.defconfig)
+    for flag in ctx.attr.extra_make_flags:
+        args.add("--extra-make-flag", flag)
 
-    if ctx.files.config_fragments:
-        frag_paths = [f.path for f in ctx.files.config_fragments]
-        args.add("--config-fragments", ",".join(frag_paths))
+    # Startup environment (forms part of the worker key — worker restarts when
+    # any of these change).
+    env = {
+        "VMWORKER_KERNEL": ctx.file._bootstrap_kernel.path,
+        "VMWORKER_INITRD": ctx.file._bootstrap_initrd.path,
+        "VMWORKER_TOOLCHAIN_TAR": ctx.file._bootstrap_toolchain.path,
+        "VMWORKER_SYSROOT_TAR": ctx.file._bootstrap_sysroot.path,
+        "VMWORKER_MEMORY": ctx.attr.memory,
+        "VMWORKER_ACCEL": qemu_info.accel,
+        "VMWORKER_MACHINE_TYPE": qemu_info.machine_type,
+    }
 
-    # Collect all tool inputs.
+    if qemu_system:
+        env["VMWORKER_QEMU_SYSTEM"] = qemu_system.path
+    if qemu_img:
+        env["VMWORKER_QEMU_IMG"] = qemu_img.path
+    if ctx.attr.ccache_dir:
+        env["VMWORKER_CCACHE_DIR"] = ctx.attr.ccache_dir
+
+    # Tool inputs: worker binary, bootstrap files, QEMU binaries.
+    # These are declared as tools (not inputs) so Bazel tracks them separately
+    # from the per-request input set used for cache keys.
     tool_inputs = [
         ctx.file._bootstrap_kernel,
         ctx.file._bootstrap_initrd,
+        ctx.file._bootstrap_toolchain,
+        ctx.file._bootstrap_sysroot,
     ]
-    if qemu_binary:
-        tool_inputs.append(qemu_binary)
+    if qemu_system:
+        tool_inputs.append(qemu_system)
+    if qemu_img:
+        tool_inputs.append(qemu_img)
+
+    # Per-request inputs: source tarball and config files.
+    request_inputs = [source_tarball]
+    if ctx.file.config:
+        request_inputs.append(ctx.file.config)
+    for frag in ctx.files.config_fragments:
+        request_inputs.append(frag)
 
     ctx.actions.run(
-        inputs = depset(direct = inputs + tool_inputs),
-        outputs = [vmlinuz, system_map, modules_tar, dot_config],
-        executable = ctx.executable._vmbuilder,
+        executable = ctx.executable._vmworker,
         arguments = [args],
+        inputs = depset(direct = request_inputs),
+        tools = tool_inputs,
+        env = env,
+        outputs = [vmlinuz, system_map, modules_tar, dot_config],
         mnemonic = "KernelBuildVM",
         progress_message = "Building Linux kernel %s (%s) via VM" % (ctx.attr.version, arch),
         execution_requirements = {
             "no-remote": "1",
             "no-sandbox": "1",
+            "supports-workers": "1",
+            "requires-worker-protocol": "json",
         },
         use_default_shell_env = False,
     )
@@ -526,16 +551,23 @@ _kernel_build_vm = rule(
         "make_jobs": attr.int(default = 0),
         "extra_make_flags": attr.string_list(default = []),
         "version": attr.string(mandatory = True),
-        # ccache is a no-op for the VM path (the VM uses its own toolchain).
-        "ccache": attr.label(allow_single_file = True),
-        "ccache_dir": attr.string(default = "/tmp/bazel-ccache"),
+        # ccache_dir: persistent ccache directory on the host, shared into the VM
+        # via VMWORKER_CCACHE_DIR. Defaults to "" (transient per-build directory on
+        # the scratch disk — no persistent caching).
+        "ccache_dir": attr.string(
+            default = "",
+            doc = """ccache storage directory for the VM build worker.
+Empty string (default) means the worker uses a transient directory on the
+scratch disk — no persistent caching. Set to an absolute path on the host
+(must be mounted into the sandbox) to enable persistent caching.""",
+        ),
         "memory": attr.string(
             default = "8G",
             doc = "VM memory for the builder (e.g. 4G, 8G). macOS path only.",
         ),
         # Private tool attrs.
-        "_vmbuilder": attr.label(
-            default = "//linux/tools/vmbuilder",
+        "_vmworker": attr.label(
+            default = "//linux/tools/vmworker",
             executable = True,
             cfg = "exec",
         ),
@@ -549,7 +581,19 @@ _kernel_build_vm = rule(
             default = "//linux/bootstrap:initrd",
             allow_single_file = True,
             cfg = "exec",
-            doc = "Bootstrap initrd (Debian-based, with gcc/make/flex/bison/python3/perl/bc/tar and the vmtest agent).",
+            doc = "Bootstrap initrd (runtime only — no compiler toolchain).",
+        ),
+        "_bootstrap_toolchain": attr.label(
+            default = "//linux/bootstrap:toolchain",
+            allow_single_file = True,
+            cfg = "exec",
+            doc = "LLVM distribution tar.xz (clang, lld, llvm-ar, …). Downloaded via the vm_toolchain extension for version parity with the native build path.",
+        ),
+        "_bootstrap_sysroot": attr.label(
+            default = "//linux/bootstrap:sysroot",
+            allow_single_file = True,
+            cfg = "exec",
+            doc = "Sysroot tar (build tools: make, flex, bison, … + dev headers: libelf-dev, libssl-dev, …). From Debian packages.",
         ),
     },
     toolchains = [_QEMU_TOOLCHAIN_TYPE],
@@ -560,15 +604,22 @@ _kernel_build_vm = rule(
 # ---------------------------------------------------------------------------
 
 def kernel_build(name, **kwargs):
-    """Build a Linux kernel from source.
+    """Build a Linux kernel from source using LLVM (LLVM=1).
 
     On Linux, runs make directly using Bazel-managed toolchains (LLVM, flex,
-    bison, python3, perl, make, bsdtar, nproc).
+    bison, python3, perl, make, bsdtar, nproc). All toolchains are hermetic —
+    only bc is taken from the host.
 
-    On macOS, boots a QEMU/HVF VM with the bootstrap kernel and rootfs, builds
-    the kernel inside it, and extracts outputs via 9P.
+    On macOS, boots a persistent QEMU/HVF (Apple Silicon) or QEMU/HVF (Intel)
+    VM worker with the bootstrap kernel and initrd, builds the kernel inside it,
+    and extracts outputs via 9P. QEMU must be installed (e.g. via Homebrew).
+    The Bazel-managed LLVM toolchain is shared into the VM via 9P at build time
+    so the VM itself stays small (no compiler in the initrd).
 
     Both paths produce the same LinuxKernelInfo provider and output files.
+
+    Parallel VM builds are supported via:
+        --worker_max_instances=KernelBuildVM=N
 
     Args:
         name: Target name.
@@ -578,17 +629,27 @@ def kernel_build(name, **kwargs):
         config_fragments: Config fragment files applied after base config.
         arch: Target architecture. x86_64 (default), amd64 (alias), or arm64.
         make_jobs: Parallel make jobs. 0 = auto.
-        extra_make_flags: Additional flags passed to make (native path only).
+        extra_make_flags: Additional flags passed to make (both paths).
         version: Kernel version string (e.g., "6.12.1"). Required.
-        ccache: ccache binary for incremental builds (native path only).
-        ccache_dir: ccache storage directory (native path only).
-        memory: VM memory for macOS builder (e.g. "4G"). macOS path only.
+        ccache: ccache binary for incremental builds. Linux (native) path only.
+            Point at @ccache//:ccache from the ccache extension.
+        ccache_dir: ccache storage directory.
+            Linux path: directory for the ccache binary (must be mounted in sandbox via
+                --sandbox_add_mount_pair and --sandbox_writable_path in .bazelrc).
+            macOS (VM) path: persistent ccache directory on the host, passed to the VM
+                worker via VMWORKER_CCACHE_DIR. Empty string (default) uses a transient
+                directory on the VM scratch disk — no persistent caching.
+        memory: VM memory for macOS builder (e.g. "4G", "8G"). macOS path only.
     """
 
-    # The "memory" attr is only accepted by _kernel_build_vm (macOS path).
-    # Strip it from native kwargs to avoid an unknown-attr error.
+    # Attrs accepted only by the native (Linux) rule — strip from VM kwargs.
+    _NATIVE_ONLY_ATTRS = ["ccache"]
+
+    # Attrs accepted only by the VM (macOS) rule — strip from native kwargs.
     _VM_ONLY_ATTRS = ["memory"]
+
     native_kwargs = {k: v for k, v in kwargs.items() if k not in _VM_ONLY_ATTRS}
+    vm_kwargs = {k: v for k, v in kwargs.items() if k not in _NATIVE_ONLY_ATTRS}
 
     _kernel_build_native(
         name = name + "_native",
@@ -597,7 +658,7 @@ def kernel_build(name, **kwargs):
 
     _kernel_build_vm(
         name = name + "_vm",
-        **kwargs
+        **vm_kwargs
     )
 
     native.alias(

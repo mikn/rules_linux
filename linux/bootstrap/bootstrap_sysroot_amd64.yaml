@@ -1,0 +1,52 @@
+# Sysroot and build tools for the kernel_build VM (x86_64 / amd64).
+#
+# Contains everything needed to compile a kernel EXCEPT clang/lld/llvm, which
+# come from the Bazel-managed LLVM distribution (vm_toolchain extension) to
+# ensure version parity with the native Linux build path.
+#
+# Shared into the builder VM via 9P and extracted onto the scratch disk.
+#
+# To regenerate the lock file after changing packages:
+#   bazel run @bootstrap_sysroot_amd64//:lock
+version: 1
+
+sources:
+  - channel: trixie main
+    url: https://snapshot.debian.org/archive/debian/20260311T203443Z
+
+archs:
+  - amd64
+
+packages:
+  # Build tools
+  - make
+  - flex
+  - bison
+  - bc
+  - ccache
+
+  # Scripting (required by kernel build scripts under scripts/)
+  # Full perl (not perl-base): scripts/sign-file and scripts/extract-cert use
+  # Getopt::Long and other core modules not present in perl-base.
+  - perl
+  - python3
+
+  # Archive / compression tools used by kernel build and module install
+  - cpio
+  - xz-utils
+  - rsync
+
+  # Misc build support
+  - binutils
+  - file
+  - patch
+  - diffutils
+  - gawk
+
+  # Dev headers and libraries (kernel build dependencies)
+  # Required by kernel's scripts/mod/modpost and BTF generation
+  - libelf-dev
+  # Required by kernel crypto subsystem headers
+  - libssl-dev
+  # C library headers (libc6-dev) for kernel userspace tools
+  - libc6-dev

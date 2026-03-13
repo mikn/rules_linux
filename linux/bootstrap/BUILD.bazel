@@ -1,18 +1,39 @@
 """Bootstrap kernel and initrd for the kernel_build VM path.
 
 Architecture-specific targets are suffixed with _amd64 or _arm64.
-The public :kernel and :initrd aliases select the correct variant based on
-the execution platform CPU (cfg = "exec" in kernel_build.bzl), so Apple
-Silicon Macs get HVF-accelerated ARM64 VMs while x86_64 hosts use their
-native architecture.
+The public :kernel, :initrd, :toolchain, and :sysroot aliases select the
+correct variant based on the execution platform CPU (cfg = "exec" in
+kernel_build.bzl), so Apple Silicon Macs get HVF-accelerated ARM64 VMs
+while x86_64 hosts use their native architecture.
 
 A platform transition forces rules_distroless deps to resolve under the
 correct Linux platform regardless of the host (works cross-arch and on
 macOS).
 
+Bootstrap is split into three package sets per architecture:
+  runtime   — minimal VM boot environment (systemd, shell, agent).
+              Used for the initrd; kept small for fast boot.
+  sysroot   — build tools (make, flex, bison, …) and dev headers
+              (libelf-dev, libssl-dev, …). Shared via 9P, extracted
+              onto scratch disk.
+
+The LLVM toolchain (clang, lld, llvm-ar, …) comes from the vm_toolchain
+module extension, NOT from Debian packages. This ensures version parity
+with the native Linux build path's toolchains_llvm registration.
+
+The :kernel target still uses the legacy monolithic bootstrap_debian_*
+packages because the kernel image must be present for initial VM boot and
+those packages already have generated lock files.
+
 To regenerate lock files after editing manifests:
+    # Legacy (kernel extraction still uses these)
     bazel run @bootstrap_debian_amd64//:lock
     bazel run @bootstrap_debian_arm64//:lock
+    # Split sets
+    bazel run @bootstrap_runtime_amd64//:lock
+    bazel run @bootstrap_runtime_arm64//:lock
+    bazel run @bootstrap_sysroot_amd64//:lock
+    bazel run @bootstrap_sysroot_arm64//:lock
 """
 
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
@@ -41,8 +62,11 @@ platform(
     ],
 )
 
-# Transition the distroless flat tars so their internal select() resolves
-# correctly regardless of host platform (cross-arch or macOS).
+# ---------------------------------------------------------------------------
+# Platform-transitioned flat tars from each package set
+# ---------------------------------------------------------------------------
+
+# Legacy monolithic bootstrap (used for :kernel extraction)
 platform_dep(
     name = "debian_flat_amd64",
     dep = "@bootstrap_debian_amd64//:flat",
@@ -52,6 +76,32 @@ platform_dep(
 platform_dep(
     name = "debian_flat_arm64",
     dep = "@bootstrap_debian_arm64//:flat",
+    platform = ":linux_arm64",
+)
+
+# Runtime: minimal VM boot environment
+platform_dep(
+    name = "runtime_flat_amd64",
+    dep = "@bootstrap_runtime_amd64//:flat",
+    platform = ":linux_amd64",
+)
+
+platform_dep(
+    name = "runtime_flat_arm64",
+    dep = "@bootstrap_runtime_arm64//:flat",
+    platform = ":linux_arm64",
+)
+
+# Sysroot: build tools + dev headers (everything except LLVM)
+platform_dep(
+    name = "sysroot_flat_amd64",
+    dep = "@bootstrap_sysroot_amd64//:flat",
+    platform = ":linux_amd64",
+)
+
+platform_dep(
+    name = "sysroot_flat_arm64",
+    dep = "@bootstrap_sysroot_arm64//:flat",
     platform = ":linux_arm64",
 )
 
@@ -71,20 +121,24 @@ pkg_tar(
 # x86_64 (amd64) bootstrap
 # ---------------------------------------------------------------------------
 
+# Kernel image is extracted from the legacy monolithic bootstrap so that
+# lock files exist and the initial VM boot kernel is available immediately.
 kernel_extract(
     name = "kernel_amd64",
-    package = ":debian_flat_amd64",
     arch = "x86_64",
+    package = ":debian_flat_amd64",
     visibility = ["//visibility:private"],
 )
 
+# Runtime initrd: runtime packages + init script + vmtest agent.
+# Excludes compiler toolchain → smaller initrd, faster boot.
 pkg_tar(
     name = "bootstrap_rootfs_amd64",
     visibility = ["//visibility:private"],
     deps = [
-        ":debian_flat_amd64",
-        "@rules_qemu//agent:agent_tar",
         ":init_tar",
+        ":runtime_flat_amd64",
+        "@rules_qemu//agent:agent_tar",
     ],
 )
 
@@ -101,8 +155,8 @@ initrd(
 
 kernel_extract(
     name = "kernel_arm64",
-    package = ":debian_flat_arm64",
     arch = "arm64",
+    package = ":debian_flat_arm64",
     visibility = ["//visibility:private"],
 )
 
@@ -110,9 +164,9 @@ pkg_tar(
     name = "bootstrap_rootfs_arm64",
     visibility = ["//visibility:private"],
     deps = [
-        ":debian_flat_arm64",
-        "@rules_qemu//agent:agent_tar",
         ":init_tar",
+        ":runtime_flat_arm64",
+        "@rules_qemu//agent:agent_tar",
     ],
 )
 
@@ -141,6 +195,27 @@ alias(
     actual = select({
         "@platforms//cpu:aarch64": ":initrd_arm64",
         "//conditions:default": ":initrd_amd64",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+# LLVM toolchain tar (from vm_toolchain extension — same version as toolchains_llvm).
+# The .tar.xz is shared into the VM via 9P and extracted onto the scratch disk.
+alias(
+    name = "toolchain",
+    actual = select({
+        "@platforms//cpu:aarch64": "@vm_llvm_arm64//:llvm.tar.xz",
+        "//conditions:default": "@vm_llvm_amd64//:llvm.tar.xz",
+    }),
+    visibility = ["//visibility:public"],
+)
+
+# Sysroot tar (build tools + dev headers, from Debian).
+alias(
+    name = "sysroot",
+    actual = select({
+        "@platforms//cpu:aarch64": ":sysroot_flat_arm64",
+        "//conditions:default": ":sysroot_flat_amd64",
     }),
     visibility = ["//visibility:public"],
 )

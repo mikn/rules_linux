@@ -1,0 +1,46 @@
+# Runtime rootfs for the kernel_build VM (ARM64 / aarch64).
+#
+# Minimal environment needed to boot the builder VM and run the vmtest agent.
+# Does NOT include the compiler toolchain — that is shared via 9P from the
+# host and extracted onto the scratch disk at build time.
+#
+# To regenerate the lock file after changing packages:
+#   bazel run @bootstrap_runtime_arm64//:lock
+version: 1
+
+sources:
+  - channel: trixie main
+    url: https://snapshot.debian.org/archive/debian/20260311T203443Z
+
+archs:
+  - arm64
+
+packages:
+  # Bootstrap kernel (to boot the builder VM)
+  - linux-image-arm64
+
+  # Init system
+  - systemd-sysv
+  - systemd
+  - udev
+
+  # Basic userspace
+  - bash
+  - coreutils
+  - util-linux
+  - kmod
+  - libc-bin
+  - mount
+  - procps
+  - iproute2
+  - findutils
+  - grep
+  - sed
+
+  # Filesystem tools
+  - e2fsprogs
+
+  # Archive tools: needed to extract toolchain and sysroot tars from the 9P share
+  # xz-utils is required because the LLVM distribution is shipped as .tar.xz
+  - tar
+  - xz-utils

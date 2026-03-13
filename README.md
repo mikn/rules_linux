@@ -2,7 +2,7 @@
 
 Bazel rules for building Linux boot artifacts: kernels, initrds, UKIs, ISOs, and Secure Boot signing.
 
-Supports x86_64 and ARM64 targets. Linux and macOS hosts are supported (macOS support for `kernel_build` is best-effort).
+Supports x86_64 and ARM64 targets. Linux and macOS hosts are supported for `kernel_build`.
 
 ## Setup
 
@@ -17,9 +17,52 @@ All rules are exported from `@rules_linux//linux:defs.bzl`.
 
 ### `kernel_build`
 
-Build a Linux kernel from source using hermetic toolchains (LLVM, flex, bison, python3, perl, make).
+Build a Linux kernel from source. This ruleset **optimizes for LLVM (`LLVM=1`) builds only** — GCC-based builds are not supported.
 
-**Host support:** Tested on Linux x86_64 and Linux ARM64. macOS (Apple Silicon and Intel) is best-effort — the kernel build system supports `LLVM=1` cross-compilation, but GNU/BSD tool differences may surface. Cross-architecture builds (e.g. building an ARM64 kernel on an x86_64 host) work via `LLVM=1 ARCH=arm64`.
+**Linux hosts:** Runs `make LLVM=1` directly using Bazel-managed hermetic toolchains (LLVM/clang, flex, bison, python3, perl, make, bsdtar, nproc). Only `bc` is taken from the host (no BCR module available).
+
+**macOS hosts:** Boots a persistent QEMU VM worker with the bootstrap kernel and initrd. The LLVM toolchain (clang, lld, llvm-ar, etc.) is downloaded from the official LLVM releases via the `vm_toolchain` extension — the same version as your `toolchains_llvm` registration — and shared into the VM via 9P. Ancillary build tools (make, flex, bison, perl, etc.) and dev headers come from Debian packages in the sysroot. The VM itself stays small (no compiler in the initrd). Requires QEMU installed on the host (e.g. `brew install qemu`). Apple Silicon Macs use HVF-accelerated ARM64 VMs; Intel Macs use HVF-accelerated x86_64 VMs.
+
+Both paths produce the same `LinuxKernelInfo` provider and output files.
+
+#### Parallel VM builds (macOS)
+
+The VM worker supports Bazel's persistent worker protocol. To run N kernel builds in parallel:
+
+```sh
+bazel build --worker_max_instances=KernelBuildVM=4 //...
+```
+
+#### Persistent compiler cache (ccache)
+
+On **Linux**, pass the `ccache` binary and `ccache_dir`. The sandbox must be configured to mount the cache directory:
+
+```python
+# .bazelrc
+build --sandbox_add_mount_pair=/tmp/bazel-ccache:/tmp/bazel-ccache
+build --sandbox_writable_path=/tmp/bazel-ccache
+```
+
+```starlark
+kernel_build(
+    name = "linux",
+    ccache = "@ccache//:ccache",
+    ccache_dir = "/tmp/bazel-ccache",
+    ...
+)
+```
+
+On **macOS**, set `ccache_dir` to a host path that the VM worker will use. No sandbox configuration is needed — the VM worker accesses the host path directly:
+
+```starlark
+kernel_build(
+    name = "linux",
+    ccache_dir = "/tmp/bazel-ccache",
+    ...
+)
+```
+
+#### Examples
 
 ```starlark
 load("@rules_linux//linux:defs.bzl", "kernel_build")
@@ -96,7 +139,7 @@ Assemble a Unified Kernel Image (EFI executable) from kernel + initrd.
 load("@rules_linux//linux:defs.bzl", "uki_image")
 
 # x86_64
-uki_image(
+ uki_image(
     name = "system_uki_x86_64",
     stub = "@systemd//:linuxx64.efi.stub",
     kernel = ":linux_6_12_x86_64",
@@ -294,6 +337,28 @@ bazel run @my_debian_resolve//:lock
 ```
 
 Options: `distro` (default `"bookworm"`), `components` (default `["main"]`).
+
+### `vm_toolchain` — Linux LLVM for macOS VM builds
+
+Downloads the Linux LLVM binary distribution for the kernel_build VM worker. Use the same version as your `toolchains_llvm` registration:
+
+```starlark
+# MODULE.bazel
+LLVM_VERSION = "19.1.7"
+
+# Host toolchain (runs on macOS/Linux)
+llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
+llvm.toolchain(name = "llvm_toolchain", llvm_versions = {"": LLVM_VERSION})
+use_repo(llvm, "llvm_toolchain", "llvm_toolchain_llvm")
+register_toolchains("@llvm_toolchain//:all")
+
+# Linux LLVM for VM builds (same version, Linux ELF binaries)
+vm_toolchain = use_extension("@rules_linux//linux:extensions.bzl", "vm_toolchain")
+vm_toolchain.llvm(version = LLVM_VERSION)
+use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
+```
+
+The extension downloads both x86_64 and ARM64 Linux distributions. The `kernel_build` macro automatically selects the correct architecture based on the host CPU.
 
 ### `ccache`
 

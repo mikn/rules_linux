@@ -1,0 +1,40 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library", "go_test")
+
+go_library(
+    name = "vmworker_lib",
+    srcs = [
+        "build.go",
+        "main.go",
+        "worker.go",
+    ],
+    importpath = "github.com/mikn/rules_linux/linux/tools/vmworker",
+    visibility = ["//visibility:private"],
+    deps = [
+        "@rules_qemu//vm",
+    ],
+)
+
+go_binary(
+    name = "vmworker",
+    embed = [":vmworker_lib"],
+    visibility = ["//visibility:public"],
+)
+
+go_test(
+    name = "vmworker_test",
+    size = "large",
+    srcs = ["vmworker_test.go"],
+    data = [
+        ":vmworker",
+        "//linux/bootstrap:initrd",
+        "//linux/bootstrap:kernel",
+    ],
+    env = {
+        "BOOTSTRAP_INITRD": "$(rlocationpath //linux/bootstrap:initrd)",
+        "BOOTSTRAP_KERNEL": "$(rlocationpath //linux/bootstrap:kernel)",
+        "VMWORKER_BIN": "$(rlocationpath :vmworker)",
+    },
+    tags = ["requires-kvm"],
+    target_compatible_with = ["@platforms//os:linux"],
+    deps = ["@rules_qemu//vm"],
+)

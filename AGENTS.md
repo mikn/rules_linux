@@ -17,7 +17,7 @@ bazel run //:gazelle                                                 # Regenerat
 - `linux/macros.bzl` — High-level: `usi_image`, `signed_usi_image`, `iso_multiarch`
 - `linux/rootfs.bzl` — Rootfs assembly macros: `systemd_service`, `install_files`, `rootfs`
 - `linux/extensions.bzl` — Module extensions: `kernel_sources`, `ccache`, `test_artifacts`, `packages`
-- `linux/tools/` — Go tools: `mkiso` (ISO creation), `usi-signer` (Secure Boot signing), `vmbuilder` (macOS kernel build)
+- `linux/tools/` — Go tools: `mkiso` (ISO creation), `usi-signer` (Secure Boot signing), `vmworker` (persistent Bazel worker for macOS kernel build)
 - `linux/bootstrap/` — Bootstrap Debian packages for initrd base
 - `tests/` — Build tests and imperative verification tests
 

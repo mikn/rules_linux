@@ -23,6 +23,7 @@ packages:
   - lld
   - llvm
   - make
+  - ccache
   - flex
   - bison
   - bc
