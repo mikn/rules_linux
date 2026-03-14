@@ -319,7 +319,11 @@ func (w *VMWorker) guestSetup(ctx context.Context, output *strings.Builder) erro
 		}
 	}
 
-	// Try to mount the scratch disk. If it fails (corrupt/unformatted), format it first.
+	// Create mount point and try to mount the scratch disk.
+	// If mount fails (corrupt/unformatted), format it first.
+	if err := w.guestExec(ctx, "mkdir -p /build", 10, output); err != nil {
+		return fmt.Errorf("creating /build mount point: %w", err)
+	}
 	mountCmd := "mount /dev/vda /build"
 	mountExit, err := w.guestExecAllowFail(ctx, mountCmd, 30, output)
 	if err != nil {
@@ -403,6 +407,17 @@ func (w *VMWorker) guestSetup(ctx context.Context, output *strings.Builder) erro
 			extractCmd := "tar xf /mnt/input/sysroot.tar -C /build/sysroot"
 			if err := w.guestExec(ctx, extractCmd, 300, output); err != nil {
 				return fmt.Errorf("extracting sysroot: %w", err)
+			}
+			// Fix up the flat tar for use as a build sysroot:
+			// 1. Merged-usr symlinks: rules_distroless puts everything under
+			//    /usr/lib but Debian linker scripts use absolute paths like
+			//    /lib/x86_64-linux-gnu/libc.so.6.
+			// 2. Alternatives: dpkg postinst scripts don't run in flat tars,
+			//    so symlinks like awk→gawk and pager→less are missing.
+			fixupCmd := "ln -sfn usr/lib /build/sysroot/lib && ln -sfn usr/lib64 /build/sysroot/lib64 && " +
+				"ln -sfn gawk /build/sysroot/usr/bin/awk"
+			if err := w.guestExec(ctx, fixupCmd, 10, output); err != nil {
+				return fmt.Errorf("sysroot fixup: %w", err)
 			}
 			markerNeedsUpdate = true
 		}

@@ -292,8 +292,8 @@
   "moduleExtensions": {
     "//linux:extensions.bzl%vm_toolchain": {
       "general": {
-        "bzlTransitiveDigest": "Z1Ztz6ecfFN88O9lISw4xUt69v+Ri7s2acfvJ31qOkw=",
-        "usagesDigest": "+sCGUBmOgJch1Bof6/JCbeQ10A0j0qW0Wd24/YTlZXY=",
+        "bzlTransitiveDigest": "JEMtiOb2+RGsYnocskE54PPeTzMsDRreiitu3dEQ4Jc=",
+        "usagesDigest": "LxxLX7Q6mbL1Vh9NS1ngq0Fd2TvOUgA/cbGXhtO11Cc=",
         "recordedInputs": [
           "REPO_MAPPING:,rules_distroless rules_distroless+",
           "REPO_MAPPING:rules_distroless+,bazel_lib bazel_lib+",
@@ -321,11 +321,11 @@
           }
         },
         "moduleExtensionMetadata": {
-          "explicitRootModuleDirectDeps": [],
-          "explicitRootModuleDirectDevDeps": [
+          "explicitRootModuleDirectDeps": [
             "vm_llvm_amd64",
             "vm_llvm_arm64"
           ],
+          "explicitRootModuleDirectDevDeps": [],
           "useAllRepos": "NO",
           "reproducible": false
         }

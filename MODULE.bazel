@@ -83,19 +83,18 @@ use_repo(
 # Downloads the same LLVM version used by toolchains_llvm so native and VM
 # build paths use identical compiler versions.
 #
-# Usage in consumer MODULE.bazel:
+# This is NOT a dev_dependency because //linux/bootstrap:toolchain references
+# @vm_llvm_amd64 / @vm_llvm_arm64, which must be visible from rules_linux's
+# module context even when consumed as a dependency.
 #
-#   LLVM_VERSION = "19.1.7"
-#
-#   llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
-#   llvm.toolchain(name = "llvm_toolchain", llvm_versions = {"": LLVM_VERSION})
-#   ...
+# The consumer can override the LLVM version by also registering the extension:
 #
 #   vm_toolchain = use_extension("@rules_linux//linux:extensions.bzl", "vm_toolchain")
-#   vm_toolchain.llvm(version = LLVM_VERSION)
+#   vm_toolchain.llvm(version = "19.1.7")
 #   use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
 #
-vm_toolchain = use_extension("//linux:extensions.bzl", "vm_toolchain", dev_dependency = True)
+# The root module's version takes priority (extension deduplicates by name).
+vm_toolchain = use_extension("//linux:extensions.bzl", "vm_toolchain")
 vm_toolchain.llvm(version = "19.1.7")
 use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
 

@@ -50,3 +50,5 @@ packages:
   - libssl-dev
   # C library headers (libc6-dev) for kernel userspace tools
   - libc6-dev
+  # Runtime dependency of LLVM's ld.lld binary (GitHub release builds link against it)
+  - libxml2

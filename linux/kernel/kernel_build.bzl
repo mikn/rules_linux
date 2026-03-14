@@ -651,13 +651,23 @@ def kernel_build(name, **kwargs):
     native_kwargs = {k: v for k, v in kwargs.items() if k not in _VM_ONLY_ATTRS}
     vm_kwargs = {k: v for k, v in kwargs.items() if k not in _NATIVE_ONLY_ATTRS}
 
+    # Strip visibility/tags from kwargs — they're set on the alias, not the
+    # private _native/_vm targets. target_compatible_with prevents `//...`
+    # from building the wrong variant on each platform.
+    visibility = native_kwargs.pop("visibility", None)
+    vm_kwargs.pop("visibility", None)
+    tags = native_kwargs.pop("tags", None)
+    vm_kwargs.pop("tags", None)
+
     _kernel_build_native(
         name = name + "_native",
+        target_compatible_with = ["@platforms//os:linux"],
         **native_kwargs
     )
 
     _kernel_build_vm(
         name = name + "_vm",
+        target_compatible_with = ["@platforms//os:macos"],
         **vm_kwargs
     )
 
@@ -667,4 +677,6 @@ def kernel_build(name, **kwargs):
             "@platforms//os:macos": name + "_vm",
             "//conditions:default": name + "_native",
         }),
+        visibility = visibility,
+        tags = tags,
     )
