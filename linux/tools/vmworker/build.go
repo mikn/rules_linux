@@ -256,9 +256,13 @@ func (w *VMWorker) execute(req WorkRequest, output *strings.Builder) (WorkRespon
 	multiarch := multiarchLibDir(args.Arch)
 
 	// PATH: toolchain first, then standard system paths.
+	// LD_LIBRARY_PATH: sysroot shared libs (make links against libguile, etc.)
 	// HOSTCFLAGS/HOSTLDFLAGS point host tools at the sysroot for libelf, etc.
 	buildCmd := fmt.Sprintf(
-		"export PATH=/build/toolchain/bin:/build/sysroot/usr/bin:/build/sysroot/usr/sbin:/usr/bin:/bin && "+
+		"export PATH=/build/toolchain/bin:/build/sysroot/usr/bin:/build/sysroot/usr/sbin:/usr/bin:/bin "+
+			"LD_LIBRARY_PATH=/build/sysroot/usr/lib/%s:/build/sysroot/lib/%s "+
+			"BISON_PKGDATADIR=/build/sysroot/usr/share/bison "+
+			"M4=/build/sysroot/usr/bin/m4 && "+
 			"cd /build/linux && "+
 			"CCACHE_DIR=/build/ccache "+
 			"CCACHE_MAXSIZE=10G "+
@@ -266,8 +270,10 @@ func (w *VMWorker) execute(req WorkRequest, output *strings.Builder) (WorkRespon
 			"make LLVM=1 ARCH=%s "+
 			"CC='ccache clang' HOSTCC='ccache clang' "+
 			"HOSTCFLAGS='--sysroot=/build/sysroot -I/build/sysroot/usr/include -I/build/sysroot/usr/include/%s' "+
-			"HOSTLDFLAGS='-L/build/sysroot/usr/lib/%s' "+
+			"HOSTLDFLAGS='--sysroot=/build/sysroot --rtlib=compiler-rt --unwindlib=none -L/build/sysroot/usr/lib/%s' "+
 			"%s %s%s 2>&1",
+		multiarch,
+		multiarch,
 		karch,
 		multiarch,
 		multiarch,
@@ -341,11 +347,28 @@ func (w *VMWorker) execute(req WorkRequest, output *strings.Builder) (WorkRespon
 // configureKernel sets up the kernel .config inside the VM.
 // It handles both --config (explicit file) and --defconfig (named config) paths.
 func (w *VMWorker) configureKernel(ctx context.Context, karch string, args actionArgs, output *strings.Builder) error {
-	pathPrefix := "export PATH=/build/toolchain/bin:/build/sysroot/usr/bin:/build/sysroot/usr/sbin:/usr/bin:/bin && "
+	multiarch := multiarchLibDir(args.Arch)
+	// Sysroot tools (bison, m4, etc.) have hardcoded paths compiled for /usr/...
+	// Override them via env vars since the sysroot lives at /build/sysroot.
+	envPrefix := "export PATH=/build/toolchain/bin:/build/sysroot/usr/bin:/build/sysroot/usr/sbin:/usr/bin:/bin " +
+		"LD_LIBRARY_PATH=/build/sysroot/usr/lib/" + multiarch + ":/build/sysroot/lib/" + multiarch + " " +
+		"BISON_PKGDATADIR=/build/sysroot/usr/share/bison " +
+		"M4=/build/sysroot/usr/bin/m4 && "
+
+	// HOSTCFLAGS/HOSTLDFLAGS are needed even during config — make compiles host tools (fixdep, etc.).
+	// --sysroot is needed in both: HOSTCFLAGS for headers, HOSTLDFLAGS for CRT objects (Scrt1.o, crti.o).
+	// --rtlib=compiler-rt uses LLVM's runtime instead of libgcc (crtbeginS.o etc. not in sysroot).
+	// --unwindlib=none avoids needing libgcc_eh for simple host tools.
+	hostFlags := fmt.Sprintf(
+		"HOSTCC='ccache clang' "+
+			"HOSTCFLAGS='--sysroot=/build/sysroot -I/build/sysroot/usr/include -I/build/sysroot/usr/include/%s' "+
+			"HOSTLDFLAGS='--sysroot=/build/sysroot --rtlib=compiler-rt --unwindlib=none -L/build/sysroot/usr/lib/%s'",
+		multiarch, multiarch,
+	)
 
 	if args.Defconfig != "" {
 		// defconfig is already validated against defconfigPattern; safe to interpolate.
-		cmd := fmt.Sprintf("%smake -C /build/linux ARCH=%s LLVM=1 %s 2>&1", pathPrefix, karch, args.Defconfig)
+		cmd := fmt.Sprintf("%smake -C /build/linux ARCH=%s LLVM=1 %s %s 2>&1", envPrefix, karch, hostFlags, args.Defconfig)
 		if err := w.guestExec(ctx, cmd, 120, output); err != nil {
 			return fmt.Errorf("make %s: %w", args.Defconfig, err)
 		}
@@ -367,7 +390,7 @@ func (w *VMWorker) configureKernel(ctx context.Context, karch string, args actio
 	}
 
 	// Resolve any conflicts and fill in defaults.
-	resolveCmd := fmt.Sprintf("%smake -C /build/linux ARCH=%s LLVM=1 olddefconfig 2>&1", pathPrefix, karch)
+	resolveCmd := fmt.Sprintf("%smake -C /build/linux ARCH=%s LLVM=1 %s olddefconfig 2>&1", envPrefix, karch, hostFlags)
 	if err := w.guestExec(ctx, resolveCmd, 120, output); err != nil {
 		return fmt.Errorf("olddefconfig: %w", err)
 	}
