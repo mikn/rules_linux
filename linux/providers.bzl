@@ -4,6 +4,7 @@ LinuxKernelInfo = provider(
     doc = "Information about a Linux kernel",
     fields = {
         "vmlinuz": "File: compressed kernel image",
+        "vmlinux": "File: uncompressed kernel image (optional, for Firecracker)",
         "modules": "File: tar of kernel modules (optional)",
         "system_map": "File: System.map (optional)",
         "headers": "File: tar of kernel headers (optional)",

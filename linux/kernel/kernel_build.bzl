@@ -55,6 +55,7 @@ def _kernel_build_impl(ctx):
     system_map = ctx.actions.declare_file(ctx.label.name + ".System.map")
     modules_tar = ctx.actions.declare_file(ctx.label.name + ".modules.tar")
     dot_config = ctx.actions.declare_file(ctx.label.name + ".config")
+    vmlinux = ctx.actions.declare_file(ctx.label.name + ".vmlinux") if ctx.attr.emit_vmlinux else None
 
     # Hermetic nproc from @ape cosmos binaries (works on Linux and macOS).
     nproc_tool = ctx.executable._nproc
@@ -283,6 +284,7 @@ SRCDIR=$(mktemp -d)
 cp "$SRCDIR/{image_path}" {vmlinuz}
 cp "$SRCDIR/System.map" {system_map}
 cp "$SRCDIR/.config" {dot_config}
+{vmlinux_copy}
 
 # Install and tar modules
 MODDIR=$(mktemp -d)
@@ -309,15 +311,20 @@ rm -rf "$SRCDIR" "$MODDIR"
         system_map = system_map.path,
         modules_tar = modules_tar.path,
         dot_config = dot_config.path,
+        vmlinux_copy = ('cp "$SRCDIR/vmlinux" ' + vmlinux.path) if vmlinux else "",
     )
 
     execution_requirements = {
         "no-remote": "1",
     }
 
+    all_outputs = [vmlinuz, system_map, modules_tar, dot_config]
+    if vmlinux:
+        all_outputs.append(vmlinux)
+
     ctx.actions.run_shell(
         inputs = depset(direct = inputs, transitive = [toolchain_inputs]),
-        outputs = [vmlinuz, system_map, modules_tar, dot_config],
+        outputs = all_outputs,
         command = script,
         mnemonic = "KernelBuild",
         progress_message = "Building Linux kernel %s (%s)" % (ctx.attr.version, arch),
@@ -325,22 +332,31 @@ rm -rf "$SRCDIR" "$MODDIR"
         use_default_shell_env = False,
     )
 
+    default_files = [vmlinuz, system_map, modules_tar]
+    if vmlinux:
+        default_files.append(vmlinux)
+
+    output_groups = {
+        "vmlinuz": depset([vmlinuz]),
+        "system_map": depset([system_map]),
+        "modules": depset([modules_tar]),
+        "config": depset([dot_config]),
+    }
+    if vmlinux:
+        output_groups["vmlinux"] = depset([vmlinux])
+
     return [
-        DefaultInfo(files = depset([vmlinuz, system_map, modules_tar])),
+        DefaultInfo(files = depset(default_files)),
         LinuxKernelInfo(
             vmlinuz = vmlinuz,
+            vmlinux = vmlinux,
             modules = modules_tar,
             system_map = system_map,
             headers = None,
             version = ctx.attr.version,
             arch = arch,
         ),
-        OutputGroupInfo(
-            vmlinuz = depset([vmlinuz]),
-            system_map = depset([system_map]),
-            modules = depset([modules_tar]),
-            config = depset([dot_config]),
-        ),
+        OutputGroupInfo(**output_groups),
     ]
 
 _kernel_build_native = rule(
@@ -388,6 +404,10 @@ Point at @ccache//:ccache from the ccache extension. Requires both
         "ccache_dir": attr.string(
             default = "/tmp/bazel-ccache",
             doc = "Directory for ccache storage. Must match sandbox mount pair and writable path in .bazelrc.",
+        ),
+        "emit_vmlinux": attr.bool(
+            default = False,
+            doc = "Also output the uncompressed vmlinux image (needed by Firecracker).",
         ),
         "_nproc": attr.label(
             default = "@ape//ape:nproc",
@@ -643,7 +663,7 @@ def kernel_build(name, **kwargs):
     """
 
     # Attrs accepted only by the native (Linux) rule — strip from VM kwargs.
-    _NATIVE_ONLY_ATTRS = ["ccache"]
+    _NATIVE_ONLY_ATTRS = ["ccache", "emit_vmlinux"]
 
     # Attrs accepted only by the VM (macOS) rule — strip from native kwargs.
     _VM_ONLY_ATTRS = ["memory"]

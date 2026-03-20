@@ -182,9 +182,6 @@ def rootfs(name, base = None, services = [], files = [], extra_tars = [],
     """
     dep_targets = []
 
-    if base:
-        dep_targets.append(base)
-
     dep_targets.extend(services)
 
     if files:
@@ -197,9 +194,20 @@ def rootfs(name, base = None, services = [], files = [], extra_tars = [],
 
     dep_targets.extend(extra_tars)
 
+    if base:
+        if type(base) == "string":
+            all_deps = [base] + dep_targets
+        else:
+            # base is a select() — it must resolve to a list of labels
+            # (e.g., select({"x86_64": ["@foo"], "arm64": ["@bar"]})).
+            # Concatenate with the plain list so Bazel merges at analysis time.
+            all_deps = base + dep_targets
+    else:
+        all_deps = dep_targets
+
     pkg_tar(
         name = name,
-        deps = dep_targets,
+        deps = all_deps,
         visibility = visibility,
         **kwargs
     )
