@@ -11,6 +11,7 @@ bazel_dep(name = "rules_pkg", version = "1.2.0")
 bazel_dep(name = "aspect_bazel_lib", version = "2.22.5")
 bazel_dep(name = "gazelle", version = "0.47.0")
 bazel_dep(name = "rules_distroless", version = "0.6.2")
+bazel_dep(name = "gawk", version = "5.3.2.bcr.3")
 bazel_dep(name = "rules_shell", version = "0.6.1")
 bazel_dep(name = "ape", version = "1.1.0")
 
@@ -27,6 +28,12 @@ bazel_dep(name = "rules_bison", version = "0.4")
 bazel_dep(name = "rules_python", version = "1.9.0")
 bazel_dep(name = "rules_perl", version = "1.0.0")
 bazel_dep(name = "rules_foreign_cc", version = "0.15.1")
+
+# zstd toolchain is needed by rules_distroless's deb_postfix rule which
+# extracts .deb packages. The generated package repos reference
+# @zstd_toolchains, so it must be visible from this module.
+bazel_lib_toolchains = use_extension("@aspect_bazel_lib//lib:extensions.bzl", "toolchains")
+use_repo(bazel_lib_toolchains, "zstd_toolchains")
 
 apt = use_extension("@rules_distroless//apt:extensions.bzl", "apt")
 
@@ -83,19 +90,18 @@ use_repo(
 # Downloads the same LLVM version used by toolchains_llvm so native and VM
 # build paths use identical compiler versions.
 #
-# Usage in consumer MODULE.bazel:
+# This is NOT a dev_dependency because //linux/bootstrap:toolchain references
+# @vm_llvm_amd64 / @vm_llvm_arm64, which must be visible from rules_linux's
+# module context even when consumed as a dependency.
 #
-#   LLVM_VERSION = "19.1.7"
-#
-#   llvm = use_extension("@toolchains_llvm//toolchain/extensions:llvm.bzl", "llvm")
-#   llvm.toolchain(name = "llvm_toolchain", llvm_versions = {"": LLVM_VERSION})
-#   ...
+# The consumer can override the LLVM version by also registering the extension:
 #
 #   vm_toolchain = use_extension("@rules_linux//linux:extensions.bzl", "vm_toolchain")
-#   vm_toolchain.llvm(version = LLVM_VERSION)
+#   vm_toolchain.llvm(version = "19.1.7")
 #   use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
 #
-vm_toolchain = use_extension("//linux:extensions.bzl", "vm_toolchain", dev_dependency = True)
+# The root module's version takes priority (extension deduplicates by name).
+vm_toolchain = use_extension("//linux:extensions.bzl", "vm_toolchain")
 vm_toolchain.llvm(version = "19.1.7")
 use_repo(vm_toolchain, "vm_llvm_amd64", "vm_llvm_arm64")
 

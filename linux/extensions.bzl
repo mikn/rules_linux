@@ -291,12 +291,20 @@ _vm_llvm_repo = repository_rule(
 )
 
 def _vm_toolchain_impl(module_ctx):
+    created_names = {}
     root_direct_deps = []
     root_direct_dev_deps = []
 
+    # module_ctx.modules iterates root-first, so the consumer's version
+    # takes priority over the default version provided by rules_linux.
     for mod in module_ctx.modules:
         for llvm in mod.tags.llvm:
             name = llvm.name
+
+            if name in created_names:
+                # Already created by a higher-priority module (root wins).
+                continue
+            created_names[name] = True
 
             # Resolve per-arch SHA-256 and URLs from dict attrs.
             amd64_sha = llvm.sha256.get("amd64", "")
