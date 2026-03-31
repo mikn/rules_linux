@@ -198,7 +198,7 @@ export PATH="$CCACHE_LINKS:$PATH"
         transitive = toolchain_file_sets,
     )
 
-    inputs = [source_tarball]
+    inputs = [source_tarball] + ctx.files.patches
 
     if ctx.file.ccache:
         inputs.append(ctx.file.ccache)
@@ -257,6 +257,12 @@ done < "{frag}" """.format(frag = frag.path))
 
     extra_flags = " ".join(ctx.attr.extra_make_flags)
 
+    # Build patch commands
+    patch_lines = []
+    for p in ctx.files.patches:
+        patch_lines.append('patch -p1 -d "$SRCDIR" < "{patch}"'.format(patch = p.path))
+    patch_commands = "\n".join(patch_lines)
+
     script = """#!/bin/bash
 set -euo pipefail
 
@@ -271,6 +277,9 @@ SRCDIR=$(mktemp -d)
 
 # Extract source using hermetic bsdtar
 "$BSDTAR" -xf {source} -C "$SRCDIR" --strip-components=1
+
+# Apply patches
+{patch_commands}
 
 {ccache_setup}
 
@@ -299,6 +308,7 @@ rm -rf "$SRCDIR" "$MODDIR"
         bsdtar = bsdtar_path,
         nproc = nproc_tool.path,
         source = source_tarball.path,
+        patch_commands = patch_commands,
         ccache_setup = ccache_setup,
         config_setup = config_setup,
         make = make_cmd,
@@ -387,6 +397,10 @@ _kernel_build_native = rule(
             default = 0,
             doc = "Parallel make jobs. 0 = auto (nproc).",
         ),
+        "patches": attr.label_list(
+            allow_files = [".patch"],
+            doc = "Patch files to apply (with -p1) after extracting the kernel source.",
+        ),
         "extra_make_flags": attr.string_list(
             default = [],
             doc = "Additional flags passed to make",
@@ -474,6 +488,9 @@ def _kernel_build_vm_impl(ctx):
     for flag in ctx.attr.extra_make_flags:
         args.add("--extra-make-flag", flag)
 
+    for p in ctx.files.patches:
+        args.add("--patch", p)
+
     # Startup environment (forms part of the worker key — worker restarts when
     # any of these change).
     env = {
@@ -507,8 +524,8 @@ def _kernel_build_vm_impl(ctx):
     if qemu_img:
         tool_inputs.append(qemu_img)
 
-    # Per-request inputs: source tarball and config files.
-    request_inputs = [source_tarball]
+    # Per-request inputs: source tarball, config files, and patches.
+    request_inputs = [source_tarball] + ctx.files.patches
     if ctx.file.config:
         request_inputs.append(ctx.file.config)
     for frag in ctx.files.config_fragments:
@@ -567,6 +584,10 @@ _kernel_build_vm = rule(
         "arch": attr.string(
             default = "x86_64",
             values = ["x86_64", "amd64", "arm64"],
+        ),
+        "patches": attr.label_list(
+            allow_files = [".patch"],
+            doc = "Patch files to apply (with -p1) after extracting the kernel source.",
         ),
         "make_jobs": attr.int(default = 0),
         "extra_make_flags": attr.string_list(default = []),
