@@ -7,9 +7,16 @@ file placement, and rootfs composition.
 
 load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 
-def systemd_service(name, service_file, binary = None, enabled = True,
-                    wanted_by = "multi-user.target", binary_dest = None,
-                    extra_symlinks = {}, visibility = None, **kwargs):
+def systemd_service(
+        name,
+        service_file,
+        binary = None,
+        enabled = True,
+        wanted_by = "multi-user.target",
+        binary_dest = None,
+        extra_symlinks = {},
+        visibility = None,
+        **kwargs):
     """Install a systemd service with its binary into a rootfs layer.
 
     Generates pkg_tar targets that place the binary and service file at
@@ -30,6 +37,7 @@ def systemd_service(name, service_file, binary = None, enabled = True,
         visibility: Bazel visibility.
         **kwargs: Additional arguments passed to the final pkg_tar.
     """
+
     # Handle both file paths (files/foo.service) and labels (//pkg:foo.service)
     if ":" in service_file:
         service_name = service_file.rsplit(":", 1)[-1]
@@ -163,8 +171,14 @@ def install_files(name, files, visibility = None, **kwargs):
         **kwargs
     )
 
-def rootfs(name, base = None, services = [], files = [], extra_tars = [],
-           visibility = None, **kwargs):
+def rootfs(
+        name,
+        base = None,
+        services = [],
+        files = [],
+        extra_tars = [],
+        visibility = None,
+        **kwargs):
     """Compose a rootfs from a base image, services, files, and extra layers.
 
     This is a thin composition wrapper that merges multiple pkg_tar layers

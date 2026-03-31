@@ -21,13 +21,6 @@ def _find_file_in_depset(files, basename):
             return f
     return None
 
-def _find_file_by_suffix(files, suffix):
-    """Find a file by path suffix in a depset."""
-    for f in files.to_list():
-        if f.path.endswith(suffix):
-            return f
-    return None
-
 def _bin_dir(path):
     """Get the directory portion of a path."""
     return path.rsplit("/", 1)[0] if "/" in path else ""
@@ -155,6 +148,7 @@ def _kernel_build_impl(ctx):
     ccache_setup = ""
     if ctx.file.ccache:
         ccache_dir = ctx.attr.ccache_dir if ctx.attr.ccache_dir else "/tmp/bazel-ccache"
+
         # Use ccache's symlink/hardlink mode: create a directory with "clang" symlinked
         # to ccache, placed first on PATH. When invoked as "clang", ccache looks for the
         # real "clang" further down PATH and caches the compilation.
@@ -664,23 +658,18 @@ def kernel_build(name, **kwargs):
 
     Args:
         name: Target name.
-        source_tarball: Kernel source tarball (e.g., linux-6.12.tar.xz). Required.
-        config: Full .config file. Mutually exclusive with defconfig.
-        defconfig: Defconfig name (e.g. "defconfig", "tinyconfig"). Mutually exclusive with config.
-        config_fragments: Config fragment files applied after base config.
-        arch: Target architecture. x86_64 (default), amd64 (alias), or arm64.
-        make_jobs: Parallel make jobs. 0 = auto.
-        extra_make_flags: Additional flags passed to make (both paths).
-        version: Kernel version string (e.g., "6.12.1"). Required.
-        ccache: ccache binary for incremental builds. Linux (native) path only.
-            Point at @ccache//:ccache from the ccache extension.
-        ccache_dir: ccache storage directory.
-            Linux path: directory for the ccache binary (must be mounted in sandbox via
-                --sandbox_add_mount_pair and --sandbox_writable_path in .bazelrc).
-            macOS (VM) path: persistent ccache directory on the host, passed to the VM
-                worker via VMWORKER_CCACHE_DIR. Empty string (default) uses a transient
-                directory on the VM scratch disk — no persistent caching.
-        memory: VM memory for macOS builder (e.g. "4G", "8G"). macOS path only.
+        **kwargs: Forwarded to the underlying rule. Common keys:
+            source_tarball: Kernel source tarball (e.g., linux-6.12.tar.xz). Required.
+            config: Full .config file. Mutually exclusive with defconfig.
+            defconfig: Defconfig name (e.g. "defconfig", "tinyconfig"). Mutually exclusive with config.
+            config_fragments: Config fragment files applied after base config.
+            arch: Target architecture. x86_64 (default), amd64 (alias), or arm64.
+            make_jobs: Parallel make jobs. 0 = auto.
+            extra_make_flags: Additional flags passed to make (both paths).
+            version: Kernel version string (e.g., "6.12.1"). Required.
+            ccache: ccache binary for incremental builds. Linux (native) path only.
+            ccache_dir: ccache storage directory.
+            memory: VM memory for macOS builder (e.g. "4G", "8G"). macOS path only.
     """
 
     # Attrs accepted only by the native (Linux) rule — strip from VM kwargs.

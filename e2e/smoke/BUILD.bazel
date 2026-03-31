@@ -1,0 +1,53 @@
+load("@bazel_skylib//rules:build_test.bzl", "build_test")
+load("@rules_linux//linux:defs.bzl", "STRIP_PROFILE_NONE", "initrd", "kernel_extract")
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+
+# --- Mock kernel data ---
+
+genrule(
+    name = "mock_kernel_tar",
+    outs = ["mock_kernel.tar.gz"],
+    cmd = """
+        tmpdir=$$(mktemp -d)
+        mkdir -p $$tmpdir/boot
+        echo 'fake vmlinuz' > $$tmpdir/boot/vmlinuz-6.12.1
+        tar czf $@ -C $$tmpdir .
+        rm -rf $$tmpdir
+    """,
+)
+
+kernel_extract(
+    name = "smoke_kernel",
+    arch = "x86_64",
+    package = ":mock_kernel_tar",
+    version = "6.12.1",
+)
+
+# --- Mock initrd data ---
+
+genrule(
+    name = "mock_rootfs_file",
+    outs = ["rootfs.txt"],
+    cmd = "echo 'smoke test rootfs' > $@",
+)
+
+pkg_tar(
+    name = "mock_rootfs",
+    srcs = [":mock_rootfs_file"],
+)
+
+initrd(
+    name = "smoke_initrd",
+    rootfs = ":mock_rootfs",
+    strip_profile = STRIP_PROFILE_NONE,
+)
+
+# --- Smoke build tests ---
+
+build_test(
+    name = "smoke_test",
+    targets = [
+        ":smoke_kernel",
+        ":smoke_initrd",
+    ],
+)

@@ -1,0 +1,61 @@
+load("@stardoc//stardoc:stardoc.bzl", "stardoc")
+
+stardoc(
+    name = "providers",
+    out = "providers.md",
+    input = "//linux:providers.bzl",
+    deps = ["//linux:providers"],
+)
+
+stardoc(
+    name = "kernel_extract",
+    out = "kernel_extract.md",
+    input = "//linux/kernel:kernel_extract.bzl",
+    deps = ["//linux/kernel:kernel_extract"],
+)
+
+# Note: kernel_build and uki_image stardoc targets cannot be generated because
+# their .bzl files load @bazel_tools//tools/cpp:toolchain_utils.bzl which does
+# not provide a bzl_library target. Uncomment if/when bazel_tools exports one.
+# stardoc(
+#     name = "kernel_build",
+#     out = "kernel_build.md",
+#     input = "//linux/kernel:kernel_build.bzl",
+#     deps = ["//linux/kernel:kernel_build"],
+# )
+# stardoc(
+#     name = "uki_image",
+#     out = "uki_image.md",
+#     input = "//linux/uki:uki.bzl",
+#     deps = ["//linux/uki"],
+# )
+
+stardoc(
+    name = "initrd",
+    out = "initrd.md",
+    input = "//linux/initrd:initrd.bzl",
+    deps = ["//linux/initrd"],
+)
+
+stardoc(
+    name = "sign_image",
+    out = "sign_image.md",
+    input = "//linux/signing:signing.bzl",
+    deps = ["//linux/signing"],
+)
+
+stardoc(
+    name = "iso_image",
+    out = "iso_image.md",
+    input = "//linux/iso:iso.bzl",
+    deps = ["//linux/iso"],
+)
+
+# Note: rootfs stardoc cannot be generated because rootfs.bzl loads
+# @rules_pkg//pkg:tar.bzl which does not provide a bzl_library target.
+# stardoc(
+#     name = "rootfs",
+#     out = "rootfs.md",
+#     input = "//linux:rootfs.bzl",
+#     deps = ["//linux:rootfs"],
+# )

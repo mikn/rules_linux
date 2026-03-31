@@ -1,1 +1,28 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 # Kernel extraction and building rules
+
+exports_files(
+    [
+        "kernel_build.bzl",
+        "kernel_extract.bzl",
+    ],
+    visibility = ["//docs:__pkg__"],
+)
+
+bzl_library(
+    name = "kernel_extract",
+    srcs = ["kernel_extract.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//linux:providers"],
+)
+
+# Note: kernel_build.bzl loads @bazel_tools//tools/cpp:toolchain_utils.bzl but
+# @bazel_tools does not export bzl_library targets, so it cannot be
+# listed as a dep here.
+bzl_library(
+    name = "kernel_build",
+    srcs = ["kernel_build.bzl"],
+    visibility = ["//visibility:public"],
+    deps = ["//linux:providers"],
+)

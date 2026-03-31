@@ -2,11 +2,11 @@
 
 load("//linux/initrd:strip_profiles.bzl", "STRIP_PROFILE_SERVER")
 
-TAR_TOOLCHAIN_TYPE = "@aspect_bazel_lib//lib:tar_toolchain_type"
+_TAR_TOOLCHAIN_TYPE = "@aspect_bazel_lib//lib:tar_toolchain_type"
 
 def _initrd_impl(ctx):
     """Convert rootfs tar to cpio.zst format, stripping unnecessary files."""
-    bsdtar = ctx.toolchains[TAR_TOOLCHAIN_TYPE]
+    bsdtar = ctx.toolchains[_TAR_TOOLCHAIN_TYPE]
     rootfs_tar = ctx.file.rootfs
 
     output = ctx.actions.declare_file(ctx.label.name + ".cpio.zst")
@@ -64,6 +64,6 @@ initrd = rule(
             doc = "Patterns to remove from the exclusion list (overrides)",
         ),
     },
-    toolchains = [TAR_TOOLCHAIN_TYPE],
+    toolchains = [_TAR_TOOLCHAIN_TYPE],
     doc = "Create a stripped cpio.zst initrd from a rootfs tar.",
 )

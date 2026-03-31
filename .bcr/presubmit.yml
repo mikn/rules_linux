@@ -1,6 +1,10 @@
+# NOTE: rules_qemu is not yet published to BCR. BCR presubmit CI will need
+# an override or a stub module until rules_qemu is available in BCR.
+# The local_path_override in MODULE.bazel must be removed before submission.
 matrix:
   platform:
-    - ubuntu_22.04
+    - ubuntu2204
+    - macos_arm64
   bazel:
     - 8.x
     - 9.x
