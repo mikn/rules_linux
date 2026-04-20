@@ -1,10 +1,9 @@
 """Convenience macros for rules_linux."""
 
-load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
 load("//linux/initrd:initrd.bzl", "initrd")
-load("//linux/uki:uki.bzl", "uki_image")
-load("//linux/signing:signing.bzl", "sign_image")
 load("//linux/iso:iso.bzl", "iso_image")
+load("//linux/signing:signing.bzl", "sign_image")
+load("//linux/uki:uki.bzl", "uki_image")
 
 _TAR_TOOLCHAIN_TYPE = "@aspect_bazel_lib//lib:tar_toolchain_type"
 
@@ -56,10 +55,17 @@ _tar_extract = rule(
     doc = "Extract a single file matching a pattern from a tar archive using hermetic bsdtar.",
 )
 
-def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
-              kernel_package = None, systemd_boot_package = None,
-              arch = "x86_64", strip_profile = None, extra_excludes = [],
-              extra_includes = [], **kwargs):
+def usi_image(
+        name,
+        rootfs,
+        kernel_cmdline = "console=ttyS0,115200",
+        kernel_package = None,
+        systemd_boot_package = None,
+        arch = "x86_64",
+        strip_profile = None,
+        extra_excludes = [],
+        extra_includes = [],
+        **kwargs):
     """Build a USI (Unified System Image) - UKI with complete OS rootfs as initrd.
 
     Args:
@@ -131,9 +137,18 @@ def usi_image(name, rootfs, kernel_cmdline = "console=ttyS0,115200",
         **kwargs
     )
 
-def signed_usi_image(name, rootfs, cert, signer, kernel_cmdline = "console=ttyS0,115200",
-                     additional_certs = [], key_env_var = "SECUREBOOT_KEY",
-                     key_provider = "sops", sops = None, sops_env_yaml = None, **kwargs):
+def signed_usi_image(
+        name,
+        rootfs,
+        cert,
+        signer,
+        kernel_cmdline = "console=ttyS0,115200",
+        additional_certs = [],
+        key_env_var = "SECUREBOOT_KEY",
+        key_provider = "sops",
+        sops = None,
+        sops_env_yaml = None,
+        **kwargs):
     """Build and sign a USI image in one step.
 
     Args:
@@ -170,8 +185,17 @@ def signed_usi_image(name, rootfs, cert, signer, kernel_cmdline = "console=ttyS0
         **{k: v for k, v in kwargs.items() if k in ["visibility", "tags", "testonly"]}
     )
 
-def signed_usi(name, usi, cert, signer, sops_env_yaml = None, additional_certs = [],
-               key_env_var = "SECUREBOOT_KEY", key_provider = "sops", sops = None, **kwargs):
+def signed_usi(
+        name,
+        usi,
+        cert,
+        signer,
+        sops_env_yaml = None,
+        additional_certs = [],
+        key_env_var = "SECUREBOOT_KEY",
+        key_provider = "sops",
+        sops = None,
+        **kwargs):
     """Sign a USI image for Secure Boot.
 
     Args:

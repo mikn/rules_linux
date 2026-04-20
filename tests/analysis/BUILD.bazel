@@ -1,0 +1,82 @@
+"""Analysis tests for rules_linux using rules_testing."""
+
+load("@rules_pkg//pkg:tar.bzl", "pkg_tar")
+load("//linux:defs.bzl", "STRIP_PROFILE_NONE", "STRIP_PROFILE_SERVER", "initrd", "kernel_extract")
+load(":initrd_test.bzl", "initrd_test_suite")
+load(":kernel_extract_test.bzl", "kernel_extract_test_suite")
+
+# --- Mock data for kernel_extract tests ---
+
+genrule(
+    name = "dummy_kernel_tar",
+    outs = ["dummy_kernel.tar.gz"],
+    cmd = """
+        tmpdir=$$(mktemp -d)
+        mkdir -p $$tmpdir/boot
+        echo 'fake vmlinuz' > $$tmpdir/boot/vmlinuz-6.12.1
+        tar czf $@ -C $$tmpdir .
+        rm -rf $$tmpdir
+    """,
+)
+
+# kernel_extract with arch = x86_64 (canonical)
+kernel_extract(
+    name = "kernel_extract_x86",
+    arch = "x86_64",
+    package = ":dummy_kernel_tar",
+    version = "6.12.1",
+)
+
+# kernel_extract with arch = amd64 (should normalize to x86_64)
+kernel_extract(
+    name = "kernel_extract_amd64",
+    arch = "amd64",
+    package = ":dummy_kernel_tar",
+    version = "6.12.1",
+)
+
+# kernel_extract with arch = arm64
+kernel_extract(
+    name = "kernel_extract_arm64",
+    arch = "arm64",
+    package = ":dummy_kernel_tar",
+    version = "6.12.1",
+)
+
+# --- Mock data for initrd tests ---
+
+genrule(
+    name = "dummy_rootfs_file",
+    outs = ["dummy_rootfs.txt"],
+    cmd = "echo 'dummy rootfs content' > $@",
+)
+
+pkg_tar(
+    name = "dummy_rootfs_tar",
+    srcs = [":dummy_rootfs_file"],
+)
+
+initrd(
+    name = "initrd_none",
+    rootfs = ":dummy_rootfs_tar",
+    strip_profile = STRIP_PROFILE_NONE,
+)
+
+initrd(
+    name = "initrd_server",
+    rootfs = ":dummy_rootfs_tar",
+    strip_profile = STRIP_PROFILE_SERVER,
+)
+
+initrd(
+    name = "initrd_extra_excludes",
+    extra_excludes = ["--exclude=./tmp/*"],
+    rootfs = ":dummy_rootfs_tar",
+    strip_profile = STRIP_PROFILE_NONE,
+)
+
+# --- Test suites ---
+
+kernel_extract_test_suite(name = "kernel_extract_tests")
+
+initrd_test_suite(name = "initrd_tests")

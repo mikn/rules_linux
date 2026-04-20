@@ -1,1 +1,14 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 # ISO creation rules
+
+exports_files(
+    ["iso.bzl"],
+    visibility = ["//docs:__pkg__"],
+)
+
+bzl_library(
+    name = "iso",
+    srcs = ["iso.bzl"],
+    visibility = ["//visibility:public"],
+)

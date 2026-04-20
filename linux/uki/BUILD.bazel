@@ -1,1 +1,17 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 # UKI assembly rules
+
+exports_files(
+    ["uki.bzl"],
+    visibility = ["//docs:__pkg__"],
+)
+
+# Note: uki.bzl loads @bazel_tools//tools/cpp:toolchain_utils.bzl but
+# @bazel_tools does not export bzl_library targets, so it cannot be
+# listed as a dep here.
+bzl_library(
+    name = "uki",
+    srcs = ["uki.bzl"],
+    visibility = ["//visibility:public"],
+)

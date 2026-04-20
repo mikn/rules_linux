@@ -21,13 +21,6 @@ def _find_file_in_depset(files, basename):
             return f
     return None
 
-def _find_file_by_suffix(files, suffix):
-    """Find a file by path suffix in a depset."""
-    for f in files.to_list():
-        if f.path.endswith(suffix):
-            return f
-    return None
-
 def _bin_dir(path):
     """Get the directory portion of a path."""
     return path.rsplit("/", 1)[0] if "/" in path else ""
@@ -155,6 +148,7 @@ def _kernel_build_impl(ctx):
     ccache_setup = ""
     if ctx.file.ccache:
         ccache_dir = ctx.attr.ccache_dir if ctx.attr.ccache_dir else "/tmp/bazel-ccache"
+
         # Use ccache's symlink/hardlink mode: create a directory with "clang" symlinked
         # to ccache, placed first on PATH. When invoked as "clang", ccache looks for the
         # real "clang" further down PATH and caches the compilation.
@@ -198,7 +192,7 @@ export PATH="$CCACHE_LINKS:$PATH"
         transitive = toolchain_file_sets,
     )
 
-    inputs = [source_tarball]
+    inputs = [source_tarball] + ctx.files.patches
 
     if ctx.file.ccache:
         inputs.append(ctx.file.ccache)
@@ -257,6 +251,12 @@ done < "{frag}" """.format(frag = frag.path))
 
     extra_flags = " ".join(ctx.attr.extra_make_flags)
 
+    # Build patch commands
+    patch_lines = []
+    for p in ctx.files.patches:
+        patch_lines.append('patch -p1 -d "$SRCDIR" < "{patch}"'.format(patch = p.path))
+    patch_commands = "\n".join(patch_lines)
+
     script = """#!/bin/bash
 set -euo pipefail
 
@@ -271,6 +271,9 @@ SRCDIR=$(mktemp -d)
 
 # Extract source using hermetic bsdtar
 "$BSDTAR" -xf {source} -C "$SRCDIR" --strip-components=1
+
+# Apply patches
+{patch_commands}
 
 {ccache_setup}
 
@@ -299,6 +302,7 @@ rm -rf "$SRCDIR" "$MODDIR"
         bsdtar = bsdtar_path,
         nproc = nproc_tool.path,
         source = source_tarball.path,
+        patch_commands = patch_commands,
         ccache_setup = ccache_setup,
         config_setup = config_setup,
         make = make_cmd,
@@ -387,6 +391,10 @@ _kernel_build_native = rule(
             default = 0,
             doc = "Parallel make jobs. 0 = auto (nproc).",
         ),
+        "patches": attr.label_list(
+            allow_files = [".patch"],
+            doc = "Patch files to apply (with -p1) after extracting the kernel source.",
+        ),
         "extra_make_flags": attr.string_list(
             default = [],
             doc = "Additional flags passed to make",
@@ -474,6 +482,9 @@ def _kernel_build_vm_impl(ctx):
     for flag in ctx.attr.extra_make_flags:
         args.add("--extra-make-flag", flag)
 
+    for p in ctx.files.patches:
+        args.add("--patch", p)
+
     # Startup environment (forms part of the worker key — worker restarts when
     # any of these change).
     env = {
@@ -507,8 +518,8 @@ def _kernel_build_vm_impl(ctx):
     if qemu_img:
         tool_inputs.append(qemu_img)
 
-    # Per-request inputs: source tarball and config files.
-    request_inputs = [source_tarball]
+    # Per-request inputs: source tarball, config files, and patches.
+    request_inputs = [source_tarball] + ctx.files.patches
     if ctx.file.config:
         request_inputs.append(ctx.file.config)
     for frag in ctx.files.config_fragments:
@@ -567,6 +578,10 @@ _kernel_build_vm = rule(
         "arch": attr.string(
             default = "x86_64",
             values = ["x86_64", "amd64", "arm64"],
+        ),
+        "patches": attr.label_list(
+            allow_files = [".patch"],
+            doc = "Patch files to apply (with -p1) after extracting the kernel source.",
         ),
         "make_jobs": attr.int(default = 0),
         "extra_make_flags": attr.string_list(default = []),
@@ -643,23 +658,18 @@ def kernel_build(name, **kwargs):
 
     Args:
         name: Target name.
-        source_tarball: Kernel source tarball (e.g., linux-6.12.tar.xz). Required.
-        config: Full .config file. Mutually exclusive with defconfig.
-        defconfig: Defconfig name (e.g. "defconfig", "tinyconfig"). Mutually exclusive with config.
-        config_fragments: Config fragment files applied after base config.
-        arch: Target architecture. x86_64 (default), amd64 (alias), or arm64.
-        make_jobs: Parallel make jobs. 0 = auto.
-        extra_make_flags: Additional flags passed to make (both paths).
-        version: Kernel version string (e.g., "6.12.1"). Required.
-        ccache: ccache binary for incremental builds. Linux (native) path only.
-            Point at @ccache//:ccache from the ccache extension.
-        ccache_dir: ccache storage directory.
-            Linux path: directory for the ccache binary (must be mounted in sandbox via
-                --sandbox_add_mount_pair and --sandbox_writable_path in .bazelrc).
-            macOS (VM) path: persistent ccache directory on the host, passed to the VM
-                worker via VMWORKER_CCACHE_DIR. Empty string (default) uses a transient
-                directory on the VM scratch disk — no persistent caching.
-        memory: VM memory for macOS builder (e.g. "4G", "8G"). macOS path only.
+        **kwargs: Forwarded to the underlying rule. Common keys:
+            source_tarball: Kernel source tarball (e.g., linux-6.12.tar.xz). Required.
+            config: Full .config file. Mutually exclusive with defconfig.
+            defconfig: Defconfig name (e.g. "defconfig", "tinyconfig"). Mutually exclusive with config.
+            config_fragments: Config fragment files applied after base config.
+            arch: Target architecture. x86_64 (default), amd64 (alias), or arm64.
+            make_jobs: Parallel make jobs. 0 = auto.
+            extra_make_flags: Additional flags passed to make (both paths).
+            version: Kernel version string (e.g., "6.12.1"). Required.
+            ccache: ccache binary for incremental builds. Linux (native) path only.
+            ccache_dir: ccache storage directory.
+            memory: VM memory for macOS builder (e.g. "4G", "8G"). macOS path only.
     """
 
     # Attrs accepted only by the native (Linux) rule — strip from VM kwargs.

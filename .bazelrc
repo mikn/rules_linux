@@ -1,0 +1,7 @@
+# Test output
+test --test_output=errors
+
+# CI
+build:ci --color=yes
+test:ci --color=yes
+test:ci --test_output=all

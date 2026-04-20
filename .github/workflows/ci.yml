@@ -6,6 +6,19 @@ on:
     branches: [main]
 
 jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install buildifier
+        # TODO: Add checksum verification for the buildifier download.
+        run: |
+          wget -qO /usr/local/bin/buildifier \
+            https://github.com/bazelbuild/buildtools/releases/download/v8.0.3/buildifier-linux-amd64
+          chmod +x /usr/local/bin/buildifier
+      - name: Check formatting and lint
+        run: buildifier -mode=check -lint=warn -r .
+
   build-and-test-linux:
     runs-on: ubuntu-latest
     steps:

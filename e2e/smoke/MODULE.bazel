@@ -1,0 +1,13 @@
+# This smoke test module is intended to be run from the root workspace via
+# --override_module. It does not declare all transitive dependencies (e.g.
+# rules_qemu) and will not resolve standalone without additional overrides.
+module(name = "rules_linux_smoke_test")
+
+bazel_dep(name = "rules_linux", version = "0.1.0")
+bazel_dep(name = "bazel_skylib", version = "1.9.0")
+bazel_dep(name = "rules_pkg", version = "1.2.0")
+
+local_path_override(
+    module_name = "rules_linux",
+    path = "../..",
+)

@@ -1,1 +1,47 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
 # Linux image building rules
+
+exports_files(
+    [
+        "defs.bzl",
+        "providers.bzl",
+        "rootfs.bzl",
+    ],
+    visibility = ["//docs:__pkg__"],
+)
+
+bzl_library(
+    name = "providers",
+    srcs = ["providers.bzl"],
+    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "defs",
+    srcs = ["defs.bzl"],
+    visibility = ["//visibility:public"],
+    deps = [
+        ":providers",
+        ":rootfs",
+        "//linux/initrd",
+        "//linux/initrd:strip_profiles",
+        "//linux/iso",
+        "//linux/kernel:kernel_build",
+        "//linux/kernel:kernel_extract",
+        "//linux/signing",
+        "//linux/uki",
+    ],
+)
+
+bzl_library(
+    name = "rootfs",
+    srcs = ["rootfs.bzl"],
+    visibility = ["//visibility:public"],
+)
+
+bzl_library(
+    name = "extensions",
+    srcs = ["extensions.bzl"],
+    visibility = ["//visibility:public"],
+)

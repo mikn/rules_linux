@@ -1,8 +1,15 @@
 """Module extensions for rules_linux."""
 
+# buildifier: disable=bzl-visibility
 load("@rules_distroless//apt/private:deb_import.bzl", "deb_import")
+
+# buildifier: disable=bzl-visibility
 load("@rules_distroless//apt/private:deb_resolve.bzl", "internal_resolve")
+
+# buildifier: disable=bzl-visibility
 load("@rules_distroless//apt/private:deb_translate_lock.bzl", "deb_translate_lock")
+
+# buildifier: disable=bzl-visibility
 load("@rules_distroless//apt/private:lockfile.bzl", "lockfile")
 
 # === Kernel source tarball download ===
